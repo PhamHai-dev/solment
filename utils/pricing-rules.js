@@ -363,8 +363,58 @@ function getPrice(requestData) {
   }
 
   if (matches.length > 0 && !in_an) {
-    const matched = matches[0];
-    return { success: true, type: "pre_made", dia_chi: diaChi, message: "Tìm thấy hộp có sẵn phù hợp.", data: { loai_hop: matched.loai_hop } };
+    if (matches.length === 1) {
+      const matched = matches[0];
+      let bangGia = [];
+      if (diaChi === "HN") {
+        bangGia.push({ muc: "Giá lẻ", gia: formatPrice(matched.gia_le) });
+        bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(matched.gia_si) });
+      } else {
+        bangGia.push({ muc: "Giá lẻ", gia: formatPrice(matched.gia_le) });
+        bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(matched.gia_si_300) });
+        bangGia.push({ muc: "Giá sỉ (từ 1000 cái)", gia: formatPrice(matched.gia_si_1000) });
+      }
+      return {
+        success: true,
+        type: "pre_made",
+        dia_chi: diaChi,
+        message: "Tìm thấy hộp có sẵn phù hợp.",
+        data: {
+          loai_hop: matched.loai_hop,
+          kich_thuoc: `${D}x${R}x${C} cm`,
+          so_luong_yeu_cau: so_luong ? formatPrice(so_luong) : null,
+          bang_gia: bangGia,
+          ghi_chu: "Hộp có sẵn, mua ít cũng bán.",
+          hinh_anh: ""
+        }
+      };
+    } else {
+      let dataArr = matches.map((matched) => {
+        let bangGia = [];
+        if (diaChi === "HN") {
+          bangGia.push({ muc: "Giá lẻ", gia: formatPrice(matched.gia_le) });
+          bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(matched.gia_si) });
+        } else {
+          bangGia.push({ muc: "Giá lẻ", gia: formatPrice(matched.gia_le) });
+          bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(matched.gia_si_300) });
+          bangGia.push({ muc: "Giá sỉ (từ 1000 cái)", gia: formatPrice(matched.gia_si_1000) });
+        }
+        return {
+          loai_hop: matched.loai_hop,
+          kich_thuoc: `${D}x${R}x${C} cm`,
+          bang_gia: bangGia,
+          ghi_chu: "",
+          hinh_anh: ""
+        };
+      });
+      return {
+        success: true,
+        type: "multiple_pre_made",
+        dia_chi: diaChi,
+        message: "Tìm thấy nhiều loại hộp có cùng kích thước. Vui lòng hỏi khách hàng chọn loại hộp nào.",
+        data: dataArr
+      };
+    }
   }
 
   let giaPhoiCoSan = null;
@@ -378,12 +428,62 @@ function getPrice(requestData) {
     return { success: true, type: "custom", dia_chi: diaChi, message: "Báo giá sản xuất in ấn trên form hộp có sẵn.", data: customData };
   }
 
+  let bestEuclid = null;
+  let minEuclidDist = Infinity;
+  let bestFit = null;
+  let minVolumeDiff = Infinity;
+  const volReq = D * R * C;
+
+  for (let s of arrCoSan) {
+    const sSorted = [s.D, s.R, s.C].sort((a, b) => b - a);
+
+    let dist = Math.sqrt(Math.pow(sSorted[0] - reqSorted[0], 2) + Math.pow(sSorted[1] - reqSorted[1], 2) + Math.pow(sSorted[2] - reqSorted[2], 2));
+    if (dist < minEuclidDist) {
+      minEuclidDist = dist;
+      bestEuclid = s;
+    }
+
+    if (sSorted[0] >= reqSorted[0] && sSorted[1] >= reqSorted[1] && sSorted[2] >= reqSorted[2]) {
+      let v = s.D * s.R * s.C;
+      let diff = v - volReq;
+      if (diff < minVolumeDiff) {
+        minVolumeDiff = diff;
+        bestFit = s;
+      }
+    }
+  }
+
+  let size_gan_giong = [];
+
+  const formatCoSan = (box, tieuChi) => {
+    let bangGia = [];
+    if (diaChi === "HN") {
+      bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
+      bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(box.gia_si) });
+    } else {
+      bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
+      bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(box.gia_si_300) });
+      bangGia.push({ muc: "Giá sỉ (từ 1000 cái)", gia: formatPrice(box.gia_si_1000) });
+    }
+    return {
+      loai_hop: box.loai_hop,
+      kich_thuoc: `${box.D}x${box.R}x${box.C} cm`,
+      tieu_chi_tim_kiem: tieuChi,
+      bang_gia: bangGia
+    };
+  };
+
+  if (bestFit) size_gan_giong.push(formatCoSan(bestFit, "Gần nhất theo 3 cạnh đã sắp xếp (đựng vừa đồ)"));
+  if (bestEuclid && (!bestFit || (bestEuclid.D !== bestFit.D || bestEuclid.R !== bestFit.R || bestEuclid.C !== bestFit.C))) {
+    size_gan_giong.push(formatCoSan(bestEuclid, "Gần nhất theo form dáng tổng thể (Euclidean)"));
+  }
+
   return {
     success: true,
     type: "custom_with_suggestions",
     dia_chi: diaChi,
-    message: "Không có size có sẵn khớp chính xác.",
-    data: { size_gan_giong: [], size_yeu_cau: customData }
+    message: "Không có size có sẵn khớp chính xác. Gợi ý size gần nhất và báo giá sản xuất size yêu cầu.",
+    data: { size_gan_giong, size_yeu_cau: customData }
   };
 }
 
