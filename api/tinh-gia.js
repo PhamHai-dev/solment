@@ -51,8 +51,11 @@ module.exports = async (req, res) => {
       });
     }
 
-    // ---- Validate số học: phải là số hữu hạn và lớn hơn 0; chặn chuỗi lạ,
-    // NaN, Infinity và giá trị 0/âm trước khi vào công thức. ----
+    // ---- Validate số học ----
+    // dai/rong/cao luôn phải > 0.
+    // Tấm carton vẫn bắt buộc so_luong > 0.
+    // Riêng HỘP: so_luong là optional; null/rỗng/0 được hiểu là "chưa có số lượng"
+    // để vẫn tra được hàng có sẵn. Số âm hoặc giá trị không phải số vẫn bị chặn.
     const errors = [];
     const parsed = {};
     const numericParams = [
@@ -61,12 +64,26 @@ module.exports = async (req, res) => {
       { raw: isTamCarton ? undefined : data.cao, label: "cao", required: !isTamCarton },
       { raw: data.so_luong, label: "so_luong", required: isTamCarton }
     ];
+
     for (const p of numericParams) {
       if (p.raw === undefined || p.raw === null || p.raw === "") {
         if (p.required) errors.push(`${p.label} phải là số dương hợp lệ`);
         continue;
       }
+
       const num = Number(p.raw);
+
+      if (p.label === "so_luong" && !isTamCarton) {
+        // Hộp: 0 = chưa cung cấp số lượng, không phải lỗi.
+        if (!Number.isFinite(num) || num < 0) {
+          errors.push("so_luong phải là số không âm hợp lệ");
+        } else {
+          const qty = Math.floor(num);
+          parsed.so_luong = qty > 0 ? qty : null;
+        }
+        continue;
+      }
+
       if (!Number.isFinite(num) || num <= 0) {
         errors.push(`${p.label} phải là số dương hợp lệ`);
       } else {
