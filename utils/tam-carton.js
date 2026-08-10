@@ -24,13 +24,13 @@ function tinhGiaTam(diaChi, data, formatPrice) {
   let giaTamGoc;
 
   if (diaChi === "HCM") {
-    // GAS-HCM: điều kiện dùng && (khác HN dùng ||), và có 2 công thức giá gốc
-    // tùy ngưỡng 3000.
+    // HCM: tấm chỉ cần khuôn khi đồng thời R<25cm VÀ D<60cm.
+    // Giữ công thức giá gốc riêng theo ngưỡng 3.000đ.
     canKhuonBe = R < 25 && D < 60;
     const giaThuTruoc = D * R * 0.7;
     giaTamGoc = giaThuTruoc > 3000 ? giaThuTruoc : D * R * 0.8 + 200;
   } else {
-    // GAS-HN: điều kiện dùng ||, công thức giá gốc duy nhất.
+    // HN: chỉ cần một trong hai điều kiện R<25cm HOẶC D<60cm.
     canKhuonBe = R < 25 || D < 60;
     giaTamGoc = D * R * 0.7;
   }
@@ -65,14 +65,12 @@ function tinhGiaTam(diaChi, data, formatPrice) {
   const donGiaTam5Lop = donGiaTam3Lop * 1.5;
   const thanhTien5Lop = donGiaTam5Lop * SL + phiKhuonBe + phiBanIn;
 
-  const ghiChuKhuonBe =
-    diaChi === "HCM"
-      ? canKhuonBe
-        ? "Tấm có Rộng<25cm VÀ Dài<60cm nên cần khuôn bế, đã cộng 200đ/tấm (áp dụng cho đơn giá 3 lớp trước khi nhân hệ số 5 lớp) và phí khuôn bế 600.000đ (1 lần)."
-        : "Tấm không cần khuôn bế."
-      : canKhuonBe
-        ? "Tấm có Rộng<25cm hoặc Dài<60cm nên cần khuôn bế, đã cộng 200đ/tấm và phí khuôn bế 600.000đ (1 lần)."
-        : "Tấm không cần khuôn bế.";
+  const dieuKienKhuonBe = diaChi === "HCM"
+    ? "Rộng<25cm và Dài<60cm"
+    : "Rộng<25cm hoặc Dài<60cm";
+  const ghiChuKhuonBe = canKhuonBe
+    ? `Tấm có ${dieuKienKhuonBe} nên cần khuôn bế, đã cộng 200đ/tấm và phí khuôn bế ${formatPrice(phiKhuonBe)}đ (1 lần).`
+    : "Tấm không cần khuôn bế.";
 
   return {
     success: true,

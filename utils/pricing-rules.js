@@ -24,17 +24,22 @@ const LOAI_HOP_HOP_LE_HCM = [
 // tính theo công thức của loại khác (CẦN XÁC NHẬN LẠI), đúng cảnh báo GAS-HCM.
 const LOAI_HOP_CHUA_CO_CONG_THUC_RIENG = ["Nắp gài đáy khóa", "Hộp nắp chùm", "Vách ngăn"];
 
-// Phí khuôn bế gốc: hardcode theo loại hộp, ĐÚNG theo GAS gốc - danh sách
-// loại hộp áp mức 800k khác nhau giữa HN và HCM (giữ nguyên khác biệt gốc,
-// không tự ý gộp chung).
-function tinhPhiKhuonBeGoc(diaChi, loaiHop) {
+// Phí khuôn bế theo thông tin xưởng mới nhất. Khi chưa có bảng giá cho hơn
+// hai bát, mọi phương án từ 2 bát trở lên áp dụng cấp "nhiều bát".
+function tinhPhiKhuonBeGoc(diaChi, loaiHop, soBat = 1) {
+  const nhieuBat = soBat >= 2;
+
   if (diaChi === "HCM") {
-    const nhom800k = ["Đối khẩu", "Nắp gài pizza", "Hộp nắp chùm"];
-    return nhom800k.indexOf(loaiHop) !== -1 ? 800000 : 600000;
+    // Vách ngăn luôn cần khuôn riêng 600k; các loại hộp bế tối thiểu 800k.
+    if (loaiHop === "Vách ngăn") return 600000;
+    return nhieuBat ? 1200000 : 800000;
   }
-  // HN
-  const nhom800k = ["Hộp giày", "Hộp nắp chùm", "Nắp gài pizza", "Hộp pizza"];
-  return nhom800k.indexOf(loaiHop) !== -1 ? 800000 : 600000;
+
+  const nhomGiaCao = ["Hộp giày", "Hộp nắp chùm", "Nắp gài pizza", "Hộp pizza"];
+  if (nhomGiaCao.indexOf(loaiHop) !== -1) {
+    return nhieuBat ? 1000000 : 800000;
+  }
+  return 600000;
 }
 
 function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, banInPhucTap, ghiChuTam, giaHopCoSanKhongIn = null) {
@@ -58,15 +63,23 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
     }
   }
 
-  // ---- Phí bản in: giữ nguyên cách tính hiện tại của Node.js (không có
-  // trong phạm vi quyết định lần này) ----
   let phiBanInGoc = 0;
-  let donGiaIn = 0;
+  let donGiaInMin = 0;
+  let donGiaInMax = 0;
   if (inAn) {
     const soMau = mauIn || 1;
     phiBanInGoc = 500000 * soMau;
-    donGiaIn = 150 * soMau;
-    ghiChuChung += `Công in ${soMau} màu, đơn giá ${formatPrice(donGiaIn)}đ/hộp. Phí bản in: ${soMau} bản x 500.000đ/bản. `;
+    if (diaChi === "HCM") {
+      const giaMinMoiMau = banInPhucTap ? 500 : 300;
+      const giaMaxMoiMau = banInPhucTap ? 1000 : 400;
+      donGiaInMin = giaMinMoiMau * soMau;
+      donGiaInMax = giaMaxMoiMau * soMau;
+      ghiChuChung += `Công in ${soMau} màu: khoảng ${formatPrice(donGiaInMin)}–${formatPrice(donGiaInMax)}đ/hộp (${banInPhucTap ? "in phức tạp/nhiều mặt" : "in đơn giản"}). Giá chính xác cần CTV chốt theo size, số lượng và nội dung in. Phí bản in: ${soMau} bản x 500.000đ/bản. `;
+    } else {
+      donGiaInMin = 150 * soMau;
+      donGiaInMax = donGiaInMin;
+      ghiChuChung += `Công in ${soMau} màu, đơn giá ${formatPrice(donGiaInMin)}đ/hộp. Phí bản in: ${soMau} bản x 500.000đ/bản. `;
+    }
   }
 
   const slToCalc = SL || 500;
@@ -91,8 +104,10 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
     ghiChuChung += "Hộp có tỉ lệ cạnh chênh lệch lớn, khuyên đổi sang hộp pizza. Nếu giữ nguyên, giá đã cộng phụ phí 15%. ";
   }
 
-  // ---- Phí khuôn bế gốc: hardcode theo loại hộp (quyết định: theo GAS gốc) ----
-  const phiKhuonBeGoc = canKhuonBe ? tinhPhiKhuonBeGoc(diaChi, finalLoaiHop) : 0;
+  // ---- Phí khuôn bế theo khu vực, nhóm hộp và số bát tối ưu ----
+  const phiKhuonBeGoc = canKhuonBe
+    ? tinhPhiKhuonBeGoc(diaChi, finalLoaiHop, calcResult.soBat)
+    : 0;
 
   // ---- Ngưỡng đơn tối thiểu cơ bản + rule "vượt khổ -> nâng ngưỡng 6 triệu",
   // đúng theo GAS-HN (quyết định: thêm lại như GAS). Áp dụng chung cho HN.
@@ -105,7 +120,8 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
     lyDoNangNguong.push(`số màu in > 6 (${mauIn} màu)`);
   }
   const khoGiayVuotNguong = khoGiay > 92;
-  const chatVuotNguong = chat > 220;
+  // Bảng HCM chỉ có trường khổ giấy; ngưỡng chặt 2.200mm chỉ thuộc máy bổ HN.
+  const chatVuotNguong = diaChi === "HN" && chat > 220;
   if (khoGiayVuotNguong) lyDoNangNguong.push(`khổ giấy > 920mm (${khoGiay.toFixed(1)}cm)`);
   if (chatVuotNguong) lyDoNangNguong.push(`chặt > 2.200mm (${chat.toFixed(1)}cm)`);
   const vuot = lyDoNangNguong.length > 0;
@@ -138,8 +154,10 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
       }
     }
 
-    const donGiaCuoi = donGiaGoc + donGiaIn;
-    const thanhTienHop = donGiaCuoi * slToCalc;
+    let donGiaCuoi = donGiaGoc + donGiaInMin;
+    let donGiaCuoiMax = donGiaGoc + donGiaInMax;
+    let thanhTienHop = donGiaCuoi * slToCalc;
+    let thanhTienHopMax = donGiaCuoiMax * slToCalc;
 
     // ---- Điều kiện đạt: khác nhau giữa HN và HCM theo quyết định của user ----
     let dieuKienCoBanDat;
@@ -147,25 +165,30 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
     let slCanThietDeDat = null;
 
     if (diaChi === "HCM") {
-      // GAS-HCM: thanh_tien > 3.000.000 VÀ SL >= 500 VÀ Cao (C) > 15cm
-      const nguongTienCoBan = 3000000;
-      dieuKienCoBanDat = SL ? (thanhTienHop > nguongTienCoBan && slToCalc >= 500 && C > 15) : false;
+      // HCM nhận đơn khi đạt một trong hai nhánh:
+      // (1) trên 1,5 triệu và trên 1.000 chiếc; hoặc
+      // (2) trên 3 triệu và từ 200 chiếc.
+      // Hộp cần máy bế phải từ 1.000 tấm; vách ngăn cũng luôn dùng máy bế.
+      const datNhanDonTheoTienVaSl =
+        (thanhTienHop > 1500000 && slToCalc > 1000) ||
+        (thanhTienHop > 3000000 && slToCalc >= 200);
+      const datToiThieuMayBe = !canKhuonBe || slToCalc >= 1000;
+      dieuKienCoBanDat = SL ? datNhanDonTheoTienVaSl && datToiThieuMayBe : false;
 
       if (SL && !dieuKienCoBanDat) {
-        if (!(thanhTienHop > nguongTienCoBan)) {
-          lyDoChuaDatCoBan.push(`chưa đạt trên 3 triệu (hiện tại ~${formatPrice(Math.round(thanhTienHop))}đ)`);
+        if (!datNhanDonTheoTienVaSl) {
+          lyDoChuaDatCoBan.push(
+            `chưa đạt một trong hai điều kiện: trên 1,5 triệu với trên 1.000 chiếc hoặc trên 3 triệu với từ 200 chiếc (hiện tại ~${formatPrice(Math.round(thanhTienHop))}đ/${formatPrice(slToCalc)} chiếc)`
+          );
         }
-        if (slToCalc < 500) {
-          lyDoChuaDatCoBan.push(`chưa đạt số lượng tối thiểu 500 chiếc (hiện tại ${slToCalc})`);
+        if (!datToiThieuMayBe) {
+          lyDoChuaDatCoBan.push(`hộp/vách ngăn chạy máy bế nhận từ 1.000 tấm (hiện tại ${formatPrice(slToCalc)})`);
         }
-        if (!(C > 15)) {
-          lyDoChuaDatCoBan.push(`chiều cao hộp chưa lớn hơn 15cm (hiện tại ${C}cm)`);
-        }
-        // Không gợi ý số lượng nếu lý do là chiều cao hộp - đây là thông số cố định
-        if (C > 15) {
-          const slCanDeDuTien = Math.floor(nguongTienCoBan / donGiaCuoi) + 1;
-          slCanThietDeDat = Math.max(slCanDeDuTien, 500);
-        }
+
+        const slNhanh1500 = Math.max(Math.floor(1500000 / donGiaCuoi) + 1, 1001);
+        const slNhanh3000 = Math.max(Math.floor(3000000 / donGiaCuoi) + 1, 200);
+        slCanThietDeDat = Math.min(slNhanh1500, slNhanh3000);
+        if (canKhuonBe) slCanThietDeDat = Math.max(slCanThietDeDat, 1000);
       }
     } else {
       // GAS-HN: thanh_tien >= nguongTien (2tr/2.5tr, hoặc 6tr nếu vượt khổ) VÀ SL >= 200
@@ -199,6 +222,15 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
       let phiBanInCuoi = phiBanInGoc;
       let ghiChuUuDai = "";
 
+      // HCM: khi tiền hộp 2 nâu trước giảm trên 6 triệu, giấy 1 nâu giảm 5%.
+      if (diaChi === "HCM" && paper.name === "3lop1nau" && thanhTienHop > 6000000) {
+        donGiaCuoi = Math.ceil(donGiaCuoi * 0.95);
+        donGiaCuoiMax = Math.ceil(donGiaCuoiMax * 0.95);
+        thanhTienHop = donGiaCuoi * slToCalc;
+        thanhTienHopMax = donGiaCuoiMax * slToCalc;
+        ghiChuUuDai = "Đơn trên 6 triệu: giá 1 nâu bằng giá 2 nâu x 0,95.";
+      }
+
       if (thanhTienHop >= 30000000) {
         phiKhuonBeCuoi = 0;
         phiBanInCuoi = 0;
@@ -219,12 +251,23 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
         ghiChuUuDai = "Đơn trên 7 triệu: hỗ trợ 50% phí khuôn bế.";
       }
 
+      const tongMin = Math.ceil((thanhTienHop + phiKhuonBeCuoi + phiBanInCuoi) / 1000) * 1000;
+      const tongMax = Math.ceil((thanhTienHopMax + phiKhuonBeCuoi + phiBanInCuoi) / 1000) * 1000;
       theo_loai_giay[paper.name] = {
         dat_dieu_kien: true,
-        don_gia: formatPrice(donGiaCuoi),
+        ...(diaChi === "HCM" && inAn
+          ? {
+              don_gia_tu: formatPrice(donGiaCuoi),
+              don_gia_den: formatPrice(donGiaCuoiMax),
+              thanh_tien_tu: formatPrice(tongMin),
+              thanh_tien_den: formatPrice(tongMax)
+            }
+          : {
+              don_gia: formatPrice(donGiaCuoi),
+              thanh_tien: formatPrice(tongMin)
+            }),
         phi_khuon_be: formatPrice(Math.ceil(phiKhuonBeCuoi / 1000) * 1000),
         phi_ban_in: formatPrice(phiBanInCuoi),
-        thanh_tien: formatPrice(Math.ceil((thanhTienHop + phiKhuonBeCuoi + phiBanInCuoi) / 1000) * 1000),
         ghi_chu_uu_dai: ghiChuUuDai
       };
     } else {
@@ -241,18 +284,17 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
     }
   });
 
-  // ---- Cảnh báo CTV khi SL > 15.000, đúng theo GAS-HCM (dùng phí GỐC
-  // trước ưu đãi, vì thông báo này nói về đơn hàng chung) ----
+  // Rule hoàn phí HCM theo 15.000 hộp size lớn / 20.000 hộp size nhỏ chưa
+  // kích hoạt vì chưa có tiêu chí phân size. Chỉ nhắc CTV kiểm tra thủ công.
   let thongBaoCtv = null;
-  if (SL && SL > 15000) {
+  if (diaChi === "HCM" && SL && SL >= 15000) {
     thongBaoCtv = {
       can_bao_ctv: true,
       thong_bao_ctv:
         ` NHẮN CTV: Khách đặt ${SL.toLocaleString("vi-VN")} hộp` +
         ` | ${finalLoaiHop} ${D}x${R}x${C}cm.` +
-        ` Được hoàn khuôn bế (${phiKhuonBeGoc.toLocaleString("vi-VN")}đ)` +
-        ` HOẶC bản in (${phiBanInGoc.toLocaleString("vi-VN")}đ).` +
-        ` Vẫn thu tiền bình thường, CTV xử lý hoàn riêng.`
+        " Cần xác định size lớn/nhỏ trước khi xét hoàn khuôn bế và bản in;" +
+        " hệ thống chưa tự động miễn/hoàn theo số lượng."
     };
   }
 
@@ -260,8 +302,19 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
     loai_hop_ap_dung: finalLoaiHop,
     phuong_phap: calcResult.phuong_phap,
     kho_giay_cm: khoGiay,
-    chat_cm: chat,
-    ghi_chu_chung: ghiChuChung.trim(),
+    // Bảng HCM không có cột chặt. Giá trị vẫn được tính nội bộ để xét khổ máy bế.
+    ...(diaChi === "HN" ? { chat_cm: chat } : {}),
+    bat_ngang: calcResult.batNgang,
+    bat_doc: calcResult.batDoc,
+    so_bat: calcResult.soBat,
+    vua_kho_may_be: calcResult.vuaKhoMayBe,
+    ghi_chu_chung: (
+      ghiChuChung +
+      (diaChi === "HCM" ? " Số lượng sản xuất thực tế có thể chênh lệch ±5% so với số lượng đặt." : "") +
+      (canKhuonBe && calcResult.vuaKhoMayBe === false
+        ? " Phôi 1 bát cũng vượt khổ máy bế; cần xưởng kiểm tra thủ công."
+        : "")
+    ).trim(),
     hinh_anh_minh_hoa: ghiChuTam || "",
     theo_loai_giay,
     thong_bao_ctv: thongBaoCtv
