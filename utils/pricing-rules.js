@@ -388,7 +388,6 @@ function getPrice(requestData) {
           so_luong_yeu_cau: so_luong ? formatPrice(so_luong) : null,
           bang_gia: bangGia,
           ghi_chu: "Hộp có sẵn, mua ít cũng bán.",
-          Hinh_anh: getHinhAnh(matched),
           hinh_anh: getHinhAnh(matched)
         }
       };
@@ -408,7 +407,6 @@ function getPrice(requestData) {
           kich_thuoc: `${D}x${R}x${C} cm`,
           bang_gia: bangGia,
           ghi_chu: "",
-          Hinh_anh: getHinhAnh(matched),
           hinh_anh: getHinhAnh(matched)
         };
       });
@@ -475,7 +473,6 @@ function getPrice(requestData) {
       kich_thuoc: `${box.D}x${box.R}x${box.C} cm`,
       tieu_chi_tim_kiem: tieuChi,
       bang_gia: bangGia,
-      Hinh_anh: getHinhAnh(box),
       hinh_anh: getHinhAnh(box)
     };
   };
