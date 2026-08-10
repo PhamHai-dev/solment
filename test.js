@@ -1,5 +1,5 @@
 const assert = require("assert");
-const { tinhMayBeHN, tinhGiaHCM } = require("./utils/formulas");
+const { vuaKhoMayBe, tinhMayBeHN, tinhGiaHCM } = require("./utils/formulas");
 const { getPrice } = require("./utils/pricing-rules");
 const { tinhGiaTam } = require("./utils/tam-carton");
 const customData = (r) => r.data && r.data.size_yeu_cau ? r.data.size_yeu_cau : r.data;
@@ -56,4 +56,67 @@ const VACH_NGAN = "V\u00e1ch ng\u0103n";
 const hcmVachNgan = customData(getPrice({ dia_chi: "HCM", loai_hop: VACH_NGAN, dai: 30.1, rong: 20.1, cao: 10.1, so_luong: 2000 }));
 assert.strictEqual(accepted(hcmVachNgan).phi_khuon_be, "600.000");
 assert.ok(hcmVachNgan.ghi_chu_chung.includes("\u00b15%"));
+// Vách ngăn chưa có công thức riêng: phải cảnh báo CTV ở cả hai vùng.
+assert.ok(hcmVachNgan.ghi_chu_chung.includes("ch\u01b0a c\u00f3 c\u00f4ng th\u1ee9c ri\u00eang"));
+
+// ---- Ph\u00f4i \u0111\u00fang bi\u00ean kh\u1ed5 m\u00e1y b\u1ebf \u0111\u01b0\u1ee3c coi l\u00e0 v\u1eeba ----
+assert.strictEqual(vuaKhoMayBe(80, 110, "HN"), true);
+assert.strictEqual(vuaKhoMayBe(82, 120, "HCM"), true);
+assert.strictEqual(vuaKhoMayBe(81, 110, "HN"), false);
+assert.strictEqual(vuaKhoMayBe(82, 121, "HCM"), false);
+
+// ---- Hai payload ng\u01b0\u1eddi d\u00f9ng cung c\u1ea5p: HN 42\u00d730\u00d715 kh\u00f4ng v\u1eeba kh\u1ed5 m\u00e1y b\u1ebf ----
+const NAP_CAI = "N\u1eafp c\u00e0i 2 \u0111\u1ea7u";
+const NAP_CHUM = "H\u1ed9p n\u1eafp ch\u00f9m";
+const hnNapCaiVuot = customData(getPrice({ dia_chi: "HN", loai_hop: NAP_CAI, dai: 42, rong: 30, cao: 15, so_luong: 500 }));
+assert.strictEqual(hnNapCaiVuot.dat_dieu_kien_san_xuat, false);
+assert.strictEqual(hnNapCaiVuot.vua_kho_may_be, false);
+assert.strictEqual(hnNapCaiVuot.kich_thuoc_phoi_cm.canh_1, 82);
+assert.strictEqual(hnNapCaiVuot.kich_thuoc_phoi_cm.canh_2, 148.3);
+assert.strictEqual(accepted(hnNapCaiVuot), undefined);
+
+const hnNapChumVuot = customData(getPrice({ dia_chi: "HN", loai_hop: NAP_CHUM, dai: 42, rong: 30, cao: 15, so_luong: 500 }));
+assert.strictEqual(hnNapChumVuot.dat_dieu_kien_san_xuat, false);
+assert.strictEqual(hnNapChumVuot.vua_kho_may_be, false);
+assert.strictEqual(accepted(hnNapChumVuot), undefined);
+// H\u1ed9p n\u1eafp ch\u00f9m HN c\u00f3 c\u00f4ng th\u1ee9c ri\u00eang: kh\u00f4ng \u0111\u01b0\u1ee3c c\u1ea3nh b\u00e1o thi\u1ebfu c\u00f4ng th\u1ee9c.
+assert.ok(!hnNapChumVuot.ghi_chu_chung.includes("ch\u01b0a c\u00f3 c\u00f4ng th\u1ee9c ri\u00eang"));
+assert.ok(hnNapChumVuot.ghi_chu_chung.includes("c\u1ea7n x\u01b0\u1edfng"));
+
+// ---- \u0110\u1ed1i kh\u1ea9u HN \u0111\u1ea1t m\u00e1y b\u1ed5: metadata m\u00e1y b\u1ed5, kh\u00f4ng rule m\u00e1y b\u1ebf ----
+const hnMayBo = customData(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: 42, rong: 30, cao: 15, so_luong: 500 }));
+assert.ok(hnMayBo.phuong_phap.includes("M\u00e1y b\u1ed5"));
+assert.strictEqual(hnMayBo.so_bat, 0);
+assert.strictEqual(hnMayBo.vua_kho_may_be, null);
+assert.strictEqual(hnMayBo.dat_dieu_kien_san_xuat, true);
+assert.strictEqual(accepted(hnMayBo).phi_khuon_be, "0");
+
+// ---- Input invalid: \u0111\u1ecba ch\u1ec9, NaN, \u00e2m, zero, m\u00e0u in ----
+assert.strictEqual(getPrice({ dia_chi: "DN", loai_hop: DOI_KHAU, dai: 20, rong: 10, cao: 10 }).success, false);
+assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: "abc", rong: 10, cao: 10 }).success, false);
+assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: -5, rong: 10, cao: 10 }).success, false);
+assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: 20, rong: 10, cao: 10, so_luong: 0 }).success, false);
+assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: Number.NaN, rong: 10, cao: 10 }).success, false);
+assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: 20, rong: 10, cao: 10, in_an: true, so_mau_in: 0 }).success, false);
+assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: 20, rong: 10, cao: 10, in_an: true, so_mau_in: 2.5 }).success, false);
+
+// ---- T\u1ea5m HCM c\u00f3 in tr\u1ea3 kho\u1ea3ng gi\u00e1 300\u2013400\u0111/m\u00e0u/t\u1ea5m ----
+const tamHcmIn = tinhGiaTam("HCM", { dai: 70, rong: 24, so_luong: 1000, in_an: true, so_mau_in: 1 }, formatPrice).data;
+assert.strictEqual(tamHcmIn.can_khuon_be, false);
+assert.ok(tamHcmIn.tam_3_lop.don_gia_tu);
+assert.ok(tamHcmIn.tam_3_lop.don_gia_den);
+assert.strictEqual(Number(tamHcmIn.tam_3_lop.don_gia_den.replace(/\./g, "")) - Number(tamHcmIn.tam_3_lop.don_gia_tu.replace(/\./g, "")), 100);
+
+// ---- HCM c\u00f3 in nh\u01b0ng ch\u01b0a \u0111\u1ea1t 2,5 tri\u1ec7u: tr\u1ea3 kho\u1ea3ng t\u1ea1m t\u00ednh ----
+const hcmChuaDatIn = customData(getPrice({ dia_chi: "HCM", loai_hop: NAP_CAI, dai: 20.1, rong: 15.1, cao: 15.1, so_luong: 200, in_an: true, so_mau_in: 1 }));
+const giayChuaDat = hcmChuaDatIn.theo_loai_giay["3lop2nau"];
+assert.strictEqual(giayChuaDat.dat_dieu_kien, false);
+assert.ok(giayChuaDat.ly_do_khong_dat.includes("2.500.000"));
+assert.ok(giayChuaDat.thanh_tien_tam_tinh_den);
+
+// ---- \u01afu \u0111\u00e3i kh\u00f4ng ghi \u0111\u00e8 nhau: gi\u1ea3m 5% + mi\u1ec5n khu\u00f4n/b\u1ea3n in ----
+const giayUuDai = hcmLarge.theo_loai_giay["3lop1nau"];
+assert.ok(giayUuDai.ghi_chu_uu_dai.includes("0,95"));
+assert.ok(giayUuDai.ghi_chu_uu_dai.includes("30 tri\u1ec7u"));
+
 console.log("All pricing tests passed.");

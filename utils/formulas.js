@@ -1,4 +1,4 @@
-﻿// utils/formulas.js
+// utils/formulas.js
 // Công thức khổ giấy/chặt được port từ GAS/Sheet cũ và cần đối chiếu lại với Sheet gốc.
 
 const KHO_MAY_BE = {
@@ -88,6 +88,8 @@ function tinhMayBeHN(loaiHop, D, R, C, SL) {
   const gia3lop1nau = Math.ceil(((dienTichM2 * tinhGiaVatLieuHN(dienTichM2)) + 150 + 80000 / SL) / 10) * 10;
   return {
     phuong_phap: "Máy bế (cần khuôn bế riêng)",
+    loaiMay: "may_be",
+    kichThuocMay: KHO_MAY_BE.HN,
     khoGiay: parseFloat(bat.khoGiay.toFixed(2)), chat: parseFloat(bat.chat.toFixed(2)),
     dienTichM2: parseFloat(dienTichM2.toFixed(4)), batNgang: bat.G, batDoc: bat.H,
     soBat: bat.soBat, vuaKhoMayBe: bat.vuaKhoMay,
@@ -103,7 +105,9 @@ function tinhMayBoHN(D, R, C, SL) {
   const dienTichM2 = (khoGiay * chat) / 10000;
   const gia3lop1nau = Math.ceil(((dienTichM2 * 8500) + 150 + 100000 / SL) / 10) * 10;
   return {
-    phuong_phap: "Máy bổ (không cần khuôn bế)", khoGiay: parseFloat(khoGiay.toFixed(2)),
+    phuong_phap: "Máy bổ (không cần khuôn bế)", loaiMay: "may_bo",
+    kichThuocMay: { khoGiay: 92, chat: 220 },
+    khoGiay: parseFloat(khoGiay.toFixed(2)),
     chat: parseFloat(chat.toFixed(2)), dienTichM2: parseFloat(dienTichM2.toFixed(4)),
     batNgang: 0, batDoc: 0, soBat: 0, vuaKhoMayBe: null,
     gia_3lop1nau: gia3lop1nau, gia_3lop2nau: Math.ceil(gia3lop1nau * 1.15),
@@ -133,7 +137,8 @@ function tinhGiaHCM(loaiHop, D, R, C, SL) {
   const dienTichM2 = (khoGiay * chat) / 10000;
   const gia3lop = Math.ceil(dienTichM2 * tinhGiaVatLieuHCM(dienTichM2) + 200 + 100000 / SL);
   return {
-    phuong_phap: "Sản xuất tại TP.HCM", dienTichM2: parseFloat(dienTichM2.toFixed(4)),
+    phuong_phap: "Máy bế tại TP.HCM", loaiMay: "may_be", kichThuocMay: KHO_MAY_BE.HCM,
+    dienTichM2: parseFloat(dienTichM2.toFixed(4)),
     khoGiay: parseFloat(khoGiay.toFixed(2)), chat: parseFloat(chat.toFixed(2)),
     batNgang: 1, batDoc: 1, soBat: 1, vuaKhoMayBe: vuaKhoMayBe(khoGiay, chat, "HCM"),
     gia_3lop1nau: gia3lop, gia_3lop2nau: gia3lop, gia_trangnau: Math.ceil(gia3lop * 1.35),
@@ -141,4 +146,4 @@ function tinhGiaHCM(loaiHop, D, R, C, SL) {
   };
 }
 
-module.exports = { KHO_MAY_BE, tinhKhoGiayChatHN, timBatToiUuHN, tinhMayBeHN, tinhMayBoHN, tinhGiaHCM };
+module.exports = { KHO_MAY_BE, vuaKhoMayBe, tinhKhoGiayChatHN, timBatToiUuHN, tinhMayBeHN, tinhMayBoHN, tinhGiaHCM };

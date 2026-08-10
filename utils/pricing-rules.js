@@ -2,15 +2,13 @@ const { SIZE_CO_SAN_HN, SIZE_CO_SAN_HCM } = require("./data");
 const { tinhMayBeHN, tinhMayBoHN, tinhGiaHCM } = require("./formulas");
 const { tinhGiaTam } = require("./tam-carton");
 
-// Helper: Format price string e.g. 1500000 -> 1.500.000
 const formatPrice = (num) => {
   if (num === null || num === undefined) return num;
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  if (typeof num === "number" && !Number.isFinite(num)) return null;
+  const rounded = typeof num === "number" ? Math.round(num) : num;
+  return String(rounded).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
-// Danh sách loại hộp hợp lệ - đúng theo whitelist của GAS gốc (giữ 2 whitelist
-// hơi khác nhau giữa HN/HCM vì bản gốc vốn đã khác nhau: HN thêm "Hộp pizza",
-// HCM thêm "Nắp gài đáy khóa").
 const LOAI_HOP_HOP_LE_HN = [
   "Đối khẩu", "Nắp chồm", "Nắp cài 2 đầu", "Hộp nắp chùm",
   "Hộp giày", "Nắp gài pizza", "Vách ngăn", "Hộp pizza"
@@ -20,17 +18,15 @@ const LOAI_HOP_HOP_LE_HCM = [
   "Hộp nắp chùm", "Hộp giày", "Nắp gài pizza", "Vách ngăn"
 ];
 
-// Loại hộp chưa có công thức riêng thật sự trong sheet/formulas - đang tạm
-// tính theo công thức của loại khác (CẦN XÁC NHẬN LẠI), đúng cảnh báo GAS-HCM.
-const LOAI_HOP_CHUA_CO_CONG_THUC_RIENG = ["Nắp gài đáy khóa", "Hộp nắp chùm", "Vách ngăn"];
+const LOAI_HOP_CHUA_CO_CONG_THUC_RIENG = {
+  HN: ["Nắp gài đáy khóa", "Vách ngăn"],
+  HCM: ["Nắp gài đáy khóa", "Hộp nắp chùm", "Vách ngăn"]
+};
 
-// Phí khuôn bế theo thông tin xưởng mới nhất. Khi chưa có bảng giá cho hơn
-// hai bát, mọi phương án từ 2 bát trở lên áp dụng cấp "nhiều bát".
 function tinhPhiKhuonBeGoc(diaChi, loaiHop, soBat = 1) {
   const nhieuBat = soBat >= 2;
 
   if (diaChi === "HCM") {
-    // Vách ngăn luôn cần khuôn riêng 600k; các loại hộp bế tối thiểu 800k.
     if (loaiHop === "Vách ngăn") return 600000;
     return nhieuBat ? 1200000 : 800000;
   }
@@ -46,12 +42,10 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
   let finalLoaiHop = loaiHopInput || "Đối khẩu";
   let ghiChuChung = loaiHopInput ? "" : "Đã mặc định loại hộp là Đối khẩu do không nhận được yêu cầu loại cụ thể. ";
 
-  if (LOAI_HOP_CHUA_CO_CONG_THUC_RIENG.indexOf(finalLoaiHop) !== -1) {
-    ghiChuChung += `Loại hộp '${finalLoaiHop}' chưa có công thức riêng, đang tạm tính theo công thức loại gần nhất (CẦN XÁC NHẬN LẠI). `;
+  if (LOAI_HOP_CHUA_CO_CONG_THUC_RIENG[diaChi].indexOf(finalLoaiHop) !== -1) {
+    ghiChuChung += `Loại hộp '${finalLoaiHop}' chưa có công thức riêng tại ${diaChi}, đang tạm tính theo công thức loại gần nhất (CẦN XÁC NHẬN LẠI). `;
   }
 
-  // ---- Xác định máy bổ (không cần khuôn bế) - ngưỡng kích thước khác nhau
-  // giữa HN và HCM, đúng theo GAS gốc. Chỉ áp dụng cho "Đối khẩu". ----
   let canKhuonBe = true;
   if (finalLoaiHop === "Đối khẩu") {
     if (diaChi === "HN") {
@@ -87,13 +81,18 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
   let calcResult;
   if (diaChi === "HCM") {
     calcResult = tinhGiaHCM(finalLoaiHop, D, R, C, slToCalc);
+    if (!canKhuonBe) {
+      calcResult.phuong_phap = "Máy bổ tại TP.HCM (không cần khuôn bế)";
+      calcResult.loaiMay = "may_bo";
+      calcResult.batNgang = 0;
+      calcResult.batDoc = 0;
+      calcResult.soBat = 0;
+    }
   } else {
     if (canKhuonBe) calcResult = tinhMayBeHN(finalLoaiHop, D, R, C, slToCalc);
     else calcResult = tinhMayBoHN(D, R, C, slToCalc);
   }
 
-  // ---- Phụ phí tỉ lệ cạnh bất thường (+15%), đúng theo GAS gốc: áp dụng
-  // khi cạnh nhỏ nhất < cạnh lớn nhất / 6, cộng vào MỌI loại giấy. ----
   const minCanh = Math.min(D, R, C);
   const maxCanh = Math.max(D, R, C);
   const tiLeBatThuong = minCanh < maxCanh / 6;
@@ -104,14 +103,10 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
     ghiChuChung += "Hộp có tỉ lệ cạnh chênh lệch lớn, khuyên đổi sang hộp pizza. Nếu giữ nguyên, giá đã cộng phụ phí 15%. ";
   }
 
-  // ---- Phí khuôn bế theo khu vực, nhóm hộp và số bát tối ưu ----
   const phiKhuonBeGoc = canKhuonBe
     ? tinhPhiKhuonBeGoc(diaChi, finalLoaiHop, calcResult.soBat)
     : 0;
 
-  // ---- Ngưỡng đơn tối thiểu cơ bản + rule "vượt khổ -> nâng ngưỡng 6 triệu",
-  // đúng theo GAS-HN (quyết định: thêm lại như GAS). Áp dụng chung cho HN.
-  // HCM dùng bộ điều kiện riêng (bước 1 + bước 2 tách biệt) theo GAS-HCM. ----
   const khoGiay = calcResult.khoGiay || 0;
   const chat = calcResult.chat || 0;
 
@@ -119,11 +114,6 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
   if (inAn && mauIn > 6) {
     lyDoNangNguong.push(`số màu in > 6 (${mauIn} màu)`);
   }
-  const khoGiayVuotNguong = khoGiay > 92;
-  // Bảng HCM chỉ có trường khổ giấy; ngưỡng chặt 2.200mm chỉ thuộc máy bổ HN.
-  const chatVuotNguong = diaChi === "HN" && chat > 220;
-  if (khoGiayVuotNguong) lyDoNangNguong.push(`khổ giấy > 920mm (${khoGiay.toFixed(1)}cm)`);
-  if (chatVuotNguong) lyDoNangNguong.push(`chặt > 2.200mm (${chat.toFixed(1)}cm)`);
   const vuot = lyDoNangNguong.length > 0;
 
   if (diaChi === "HN" && vuot) {
@@ -159,24 +149,24 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
     let thanhTienHop = donGiaCuoi * slToCalc;
     let thanhTienHopMax = donGiaCuoiMax * slToCalc;
 
-    // ---- Điều kiện đạt: khác nhau giữa HN và HCM theo quyết định của user ----
     let dieuKienCoBanDat;
     let lyDoChuaDatCoBan = [];
     let slCanThietDeDat = null;
 
     if (diaChi === "HCM") {
-      // HCM nhận đơn khi đạt một trong hai nhánh:
-      // (1) trên 1,5 triệu và trên 1.000 chiếc; hoặc
-      // (2) trên 3 triệu và từ 200 chiếc.
-      // Hộp cần máy bế phải từ 1.000 tấm; vách ngăn cũng luôn dùng máy bế.
       const datNhanDonTheoTienVaSl =
-        (thanhTienHop > 1500000 && slToCalc > 1000) ||
-        (thanhTienHop > 3000000 && slToCalc >= 200);
+        (!inAn || thanhTienHop > 2500000) &&
+        ((thanhTienHop > 1500000 && slToCalc > 1000) ||
+          (thanhTienHop > 3000000 && slToCalc >= 200));
       const datToiThieuMayBe = !canKhuonBe || slToCalc >= 1000;
       dieuKienCoBanDat = SL ? datNhanDonTheoTienVaSl && datToiThieuMayBe : false;
 
       if (SL && !dieuKienCoBanDat) {
-        if (!datNhanDonTheoTienVaSl) {
+        if (inAn && thanhTienHop <= 2500000) {
+          lyDoChuaDatCoBan.push(
+            `đơn có in cần tối thiểu 2.500.000đ (hiện tại ~${formatPrice(Math.round(thanhTienHop))}đ)`
+          );
+        } else if (!datNhanDonTheoTienVaSl) {
           lyDoChuaDatCoBan.push(
             `chưa đạt một trong hai điều kiện: trên 1,5 triệu với trên 1.000 chiếc hoặc trên 3 triệu với từ 200 chiếc (hiện tại ~${formatPrice(Math.round(thanhTienHop))}đ/${formatPrice(slToCalc)} chiếc)`
           );
@@ -188,10 +178,12 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
         const slNhanh1500 = Math.max(Math.floor(1500000 / donGiaCuoi) + 1, 1001);
         const slNhanh3000 = Math.max(Math.floor(3000000 / donGiaCuoi) + 1, 200);
         slCanThietDeDat = Math.min(slNhanh1500, slNhanh3000);
+        if (inAn) {
+          slCanThietDeDat = Math.max(slCanThietDeDat, Math.floor(2500000 / donGiaCuoi) + 1);
+        }
         if (canKhuonBe) slCanThietDeDat = Math.max(slCanThietDeDat, 1000);
       }
     } else {
-      // GAS-HN: thanh_tien >= nguongTien (2tr/2.5tr, hoặc 6tr nếu vượt khổ) VÀ SL >= 200
       const nguongTienCoBan = vuot ? 6000000 : (inAn ? 2500000 : 2000000);
       dieuKienCoBanDat = SL ? (thanhTienHop >= nguongTienCoBan && slToCalc >= 200) : false;
 
@@ -207,7 +199,6 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
       }
     }
 
-    // ---- Bước 2 riêng của HCM: nếu vượt khổ, loại giấy này phải tự đạt >= 6tr ----
     let dieuKienBuoc2Dat = true;
     let lyDoChuaDatBuoc2 = "";
     if (diaChi === "HCM" && dieuKienCoBanDat && vuot && thanhTienHop < 6000000) {
@@ -215,40 +206,37 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
       lyDoChuaDatBuoc2 = `thuộc diện quá khổ (${lyDoNangNguong.join(", ")}), cần đơn từ 6.000.000đ (hiện tại ~${formatPrice(Math.round(thanhTienHop))}đ)`;
     }
 
-    const isDat = dieuKienCoBanDat && dieuKienBuoc2Dat;
+    const datDieuKienDonHang = dieuKienCoBanDat && dieuKienBuoc2Dat;
+    const isDat = datDieuKienDonHang;
 
     if (isDat) {
       let phiKhuonBeCuoi = phiKhuonBeGoc;
       let phiBanInCuoi = phiBanInGoc;
-      let ghiChuUuDai = "";
+      const ghiChuUuDai = [];
 
-      // HCM: khi tiền hộp 2 nâu trước giảm trên 6 triệu, giấy 1 nâu giảm 5%.
       if (diaChi === "HCM" && paper.name === "3lop1nau" && thanhTienHop > 6000000) {
         donGiaCuoi = Math.ceil(donGiaCuoi * 0.95);
         donGiaCuoiMax = Math.ceil(donGiaCuoiMax * 0.95);
         thanhTienHop = donGiaCuoi * slToCalc;
         thanhTienHopMax = donGiaCuoiMax * slToCalc;
-        ghiChuUuDai = "Đơn trên 6 triệu: giá 1 nâu bằng giá 2 nâu x 0,95.";
+        ghiChuUuDai.push("Đơn trên 6 triệu: giá 1 nâu bằng giá 2 nâu x 0,95.");
       }
 
       if (thanhTienHop >= 30000000) {
         phiKhuonBeCuoi = 0;
         phiBanInCuoi = 0;
-        ghiChuUuDai = "Đơn trên 30 triệu: miễn phí khuôn bế và bản in.";
+        ghiChuUuDai.push("Đơn trên 30 triệu: miễn phí khuôn bế và bản in.");
       } else if (thanhTienHop >= 15000000) {
         if (phiKhuonBeGoc >= phiBanInGoc) {
           phiKhuonBeCuoi = 0;
-          ghiChuUuDai = "Đơn trên 15 triệu: miễn phí khuôn bế.";
+          ghiChuUuDai.push("Đơn trên 15 triệu: miễn phí khuôn bế.");
         } else {
           phiBanInCuoi = 0;
-          ghiChuUuDai = "Đơn trên 15 triệu: miễn phí bản in.";
+          ghiChuUuDai.push("Đơn trên 15 triệu: miễn phí bản in.");
         }
       } else if (diaChi === "HN" && thanhTienHop >= 7000000) {
-        // Rule "hỗ trợ 50% phí khuôn bế trên 7 triệu" đã tồn tại trong code
-        // đang chạy thật (không có trong 2 bản GAS gửi lúc trước) - GIỮ NGUYÊN
-        // vì đây là hành vi hệ thống thật đang dùng, chưa có xác nhận để bỏ.
         phiKhuonBeCuoi = phiKhuonBeGoc * 0.5;
-        ghiChuUuDai = "Đơn trên 7 triệu: hỗ trợ 50% phí khuôn bế.";
+        ghiChuUuDai.push("Đơn trên 7 triệu: hỗ trợ 50% phí khuôn bế.");
       }
 
       const tongMin = Math.ceil((thanhTienHop + phiKhuonBeCuoi + phiBanInCuoi) / 1000) * 1000;
@@ -257,35 +245,39 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
         dat_dieu_kien: true,
         ...(diaChi === "HCM" && inAn
           ? {
-              don_gia_tu: formatPrice(donGiaCuoi),
-              don_gia_den: formatPrice(donGiaCuoiMax),
-              thanh_tien_tu: formatPrice(tongMin),
-              thanh_tien_den: formatPrice(tongMax)
-            }
+            don_gia_tu: formatPrice(donGiaCuoi),
+            don_gia_den: formatPrice(donGiaCuoiMax),
+            thanh_tien_tu: formatPrice(tongMin),
+            thanh_tien_den: formatPrice(tongMax)
+          }
           : {
-              don_gia: formatPrice(donGiaCuoi),
-              thanh_tien: formatPrice(tongMin)
-            }),
+            don_gia: formatPrice(donGiaCuoi),
+            thanh_tien: formatPrice(tongMin)
+          }),
         phi_khuon_be: formatPrice(Math.ceil(phiKhuonBeCuoi / 1000) * 1000),
         phi_ban_in: formatPrice(phiBanInCuoi),
-        ghi_chu_uu_dai: ghiChuUuDai
+        ghi_chu_uu_dai: ghiChuUuDai.join(" ")
       };
     } else {
       const reason = SL
         ? (lyDoChuaDatBuoc2 || lyDoChuaDatCoBan.join(", "))
         : "Khách chưa cung cấp số lượng (ước tính theo barem 500 cái)";
 
+      const tamTinhMin = Math.ceil(thanhTienHop / 1000) * 1000;
+      const tamTinhMax = Math.ceil(thanhTienHopMax / 1000) * 1000;
       theo_loai_giay[paper.name] = {
         dat_dieu_kien: false,
-        thanh_tien_tam_tinh: formatPrice(Math.ceil(thanhTienHop / 1000) * 1000),
+        dat_dieu_kien_don_hang: datDieuKienDonHang,
+        thanh_tien_tam_tinh: formatPrice(tamTinhMin),
+        ...(diaChi === "HCM" && inAn
+          ? { thanh_tien_tam_tinh_den: formatPrice(tamTinhMax) }
+          : {}),
         ly_do_khong_dat: reason,
         so_luong_can_dat_toi_thieu: slCanThietDeDat !== null ? formatPrice(slCanThietDeDat) : null
       };
     }
   });
 
-  // Rule hoàn phí HCM theo 15.000 hộp size lớn / 20.000 hộp size nhỏ chưa
-  // kích hoạt vì chưa có tiêu chí phân size. Chỉ nhắc CTV kiểm tra thủ công.
   let thongBaoCtv = null;
   if (diaChi === "HCM" && SL && SL >= 15000) {
     thongBaoCtv = {
@@ -302,18 +294,13 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
     loai_hop_ap_dung: finalLoaiHop,
     phuong_phap: calcResult.phuong_phap,
     kho_giay_cm: khoGiay,
-    // Bảng HCM không có cột chặt. Giá trị vẫn được tính nội bộ để xét khổ máy bế.
     ...(diaChi === "HN" ? { chat_cm: chat } : {}),
     bat_ngang: calcResult.batNgang,
     bat_doc: calcResult.batDoc,
     so_bat: calcResult.soBat,
-    vua_kho_may_be: calcResult.vuaKhoMayBe,
     ghi_chu_chung: (
       ghiChuChung +
-      (diaChi === "HCM" ? " Số lượng sản xuất thực tế có thể chênh lệch ±5% so với số lượng đặt." : "") +
-      (canKhuonBe && calcResult.vuaKhoMayBe === false
-        ? " Phôi 1 bát cũng vượt khổ máy bế; cần xưởng kiểm tra thủ công."
-        : "")
+      (diaChi === "HCM" ? " Số lượng sản xuất thực tế có thể chênh lệch ±5% so với số lượng đặt." : "")
     ).trim(),
     hinh_anh_minh_hoa: ghiChuTam || "",
     theo_loai_giay,
@@ -323,9 +310,12 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
 
 function getPrice(requestData) {
   const { dia_chi, loai_hop, dai, rong, cao, so_luong, in_an, so_mau_in, ban_in_phuc_tap, loai_san_pham } = requestData;
-  const diaChi = dia_chi === "HCM" ? "HCM" : "HN";
 
-  // ---- Tấm carton: tách nhánh riêng ngay từ đầu, đúng theo GAS gốc ----
+  if (dia_chi !== "HN" && dia_chi !== "HCM") {
+    return { success: false, message: "dia_chi không hợp lệ, phải là HN hoặc HCM." };
+  }
+  const diaChi = dia_chi;
+
   if (loai_san_pham === "Tấm carton") {
     return tinhGiaTam(diaChi, requestData, formatPrice);
   }
@@ -334,29 +324,32 @@ function getPrice(requestData) {
   const R = parseFloat(rong);
   const C = parseFloat(cao);
 
-  // ---- Chặn hộp âm dương, đúng theo GAS gốc ----
-  if (loai_hop && String(loai_hop).toLowerCase().indexOf("âm dương") !== -1) {
-    return {
-      success: false,
-      message: "Xưởng không nhận làm hộp âm dương."
-    };
+  if ([D, R, C].some((n) => !Number.isFinite(n) || n <= 0)) {
+    return { success: false, message: "dai/rong/cao phải là số dương hợp lệ." };
+  }
+  if (so_luong !== undefined && so_luong !== null && (!Number.isFinite(Number(so_luong)) || Number(so_luong) <= 0)) {
+    return { success: false, message: "so_luong phải là số dương hợp lệ." };
+  }
+  if (in_an === true || in_an === "true" || in_an === "1") {
+    const mau = (so_mau_in === undefined || so_mau_in === null || so_mau_in === "") ? 1 : Number(so_mau_in);
+    if (!Number.isInteger(mau) || mau < 1) {
+      return { success: false, message: "so_mau_in phải là số nguyên dương." };
+    }
   }
 
-  // ---- Validate whitelist loại hộp, đúng theo GAS gốc (whitelist khác nhau
-  // giữa HN/HCM) ----
+  if (loai_hop && String(loai_hop).toLowerCase().indexOf("âm dương") !== -1) {
+    return { success: false, message: "Xưởng không nhận làm hộp âm dương." };
+  }
+
   if (loai_hop) {
     const whitelist = diaChi === "HCM" ? LOAI_HOP_HOP_LE_HCM : LOAI_HOP_HOP_LE_HN;
     if (whitelist.indexOf(loai_hop) === -1) {
-      return {
-        success: false,
-        message: `Loại hộp không hợp lệ, phải là một trong: ${whitelist.join(", ")}`
-      };
+      return { success: false, message: `Loại hộp không hợp lệ, phải là một trong: ${whitelist.join(", ")}` };
     }
   }
 
   const arrCoSan = diaChi === "HCM" ? SIZE_CO_SAN_HCM : SIZE_CO_SAN_HN;
   let matches = [];
-
   const reqSorted = [D, R, C].sort((a, b) => b - a);
 
   for (let s of arrCoSan) {
@@ -370,58 +363,8 @@ function getPrice(requestData) {
   }
 
   if (matches.length > 0 && !in_an) {
-    if (matches.length === 1) {
-      const matched = matches[0];
-      let bangGia = [];
-      if (diaChi === "HN") {
-        bangGia.push({ muc: "Giá lẻ", gia: formatPrice(matched.gia_le) });
-        bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(matched.gia_si) });
-      } else {
-        bangGia.push({ muc: "Giá lẻ", gia: formatPrice(matched.gia_le) });
-        bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(matched.gia_si_300) });
-        bangGia.push({ muc: "Giá sỉ (từ 1000 cái)", gia: formatPrice(matched.gia_si_1000) });
-      }
-      return {
-        success: true,
-        type: "pre_made",
-        dia_chi: diaChi,
-        message: "Tìm thấy hộp có sẵn phù hợp.",
-        data: {
-          loai_hop: matched.loai_hop,
-          kich_thuoc: `${D}x${R}x${C} cm`,
-          so_luong_yeu_cau: so_luong ? formatPrice(so_luong) : null,
-          bang_gia: bangGia,
-          ghi_chu: "Hộp có sẵn, mua ít cũng bán.",
-          hinh_anh: ""
-        }
-      };
-    } else {
-      let dataArr = matches.map((matched) => {
-        let bangGia = [];
-        if (diaChi === "HN") {
-          bangGia.push({ muc: "Giá lẻ", gia: formatPrice(matched.gia_le) });
-          bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(matched.gia_si) });
-        } else {
-          bangGia.push({ muc: "Giá lẻ", gia: formatPrice(matched.gia_le) });
-          bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(matched.gia_si_300) });
-          bangGia.push({ muc: "Giá sỉ (từ 1000 cái)", gia: formatPrice(matched.gia_si_1000) });
-        }
-        return {
-          loai_hop: matched.loai_hop,
-          kich_thuoc: `${D}x${R}x${C} cm`,
-          bang_gia: bangGia,
-          ghi_chu: "",
-          hinh_anh: ""
-        };
-      });
-      return {
-        success: true,
-        type: "multiple_pre_made",
-        dia_chi: diaChi,
-        message: "Tìm thấy nhiều loại hộp có cùng kích thước. Vui lòng hỏi khách hàng chọn loại hộp nào.",
-        data: dataArr
-      };
-    }
+    const matched = matches[0];
+    return { success: true, type: "pre_made", dia_chi: diaChi, message: "Tìm thấy hộp có sẵn phù hợp.", data: { loai_hop: matched.loai_hop } };
   }
 
   let giaPhoiCoSan = null;
@@ -432,77 +375,16 @@ function getPrice(requestData) {
   const customData = calculateCustomSize(diaChi, loai_hop, D, R, C, so_luong, in_an, so_mau_in, ban_in_phuc_tap, "", giaPhoiCoSan);
 
   if (matches.length > 0 && in_an) {
-    return {
-      success: true,
-      type: "custom",
-      dia_chi: diaChi,
-      message: "Báo giá sản xuất in ấn trên form hộp có sẵn.",
-      data: customData
-    };
-  }
-
-  let bestEuclid = null;
-  let minEuclidDist = Infinity;
-  let bestFit = null;
-  let minVolumeDiff = Infinity;
-  const volReq = D * R * C;
-
-  for (let s of arrCoSan) {
-    const sSorted = [s.D, s.R, s.C].sort((a, b) => b - a);
-
-    let dist = Math.sqrt(Math.pow(sSorted[0] - reqSorted[0], 2) + Math.pow(sSorted[1] - reqSorted[1], 2) + Math.pow(sSorted[2] - reqSorted[2], 2));
-    if (dist < minEuclidDist) {
-      minEuclidDist = dist;
-      bestEuclid = s;
-    }
-
-    if (sSorted[0] >= reqSorted[0] && sSorted[1] >= reqSorted[1] && sSorted[2] >= reqSorted[2]) {
-      let v = s.D * s.R * s.C;
-      let diff = v - volReq;
-      if (diff < minVolumeDiff) {
-        minVolumeDiff = diff;
-        bestFit = s;
-      }
-    }
-  }
-
-  let size_gan_giong = [];
-
-  const formatCoSan = (box, tieuChi) => {
-    let bangGia = [];
-    if (diaChi === "HN") {
-      bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
-      bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(box.gia_si) });
-    } else {
-      bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
-      bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(box.gia_si_300) });
-      bangGia.push({ muc: "Giá sỉ (từ 1000 cái)", gia: formatPrice(box.gia_si_1000) });
-    }
-    return {
-      loai_hop: box.loai_hop,
-      kich_thuoc: `${box.D}x${box.R}x${box.C} cm`,
-      tieu_chi_tim_kiem: tieuChi,
-      bang_gia: bangGia
-    };
-  };
-
-  if (bestFit) size_gan_giong.push(formatCoSan(bestFit, "Gần nhất theo Dài, Rộng, Cao (đựng vừa đồ)"));
-  if (bestEuclid && (!bestFit || (bestEuclid.D !== bestFit.D || bestEuclid.R !== bestFit.R || bestEuclid.C !== bestFit.C))) {
-    size_gan_giong.push(formatCoSan(bestEuclid, "Gần nhất theo form dáng tổng thể (Euclidean)"));
+    return { success: true, type: "custom", dia_chi: diaChi, message: "Báo giá sản xuất in ấn trên form hộp có sẵn.", data: customData };
   }
 
   return {
     success: true,
     type: "custom_with_suggestions",
     dia_chi: diaChi,
-    message: "Không có size có sẵn khớp chính xác. Gợi ý size gần nhất và báo giá sản xuất size yêu cầu.",
-    data: {
-      size_gan_giong,
-      size_yeu_cau: customData
-    }
+    message: "Không có size có sẵn khớp chính xác.",
+    data: { size_gan_giong: [], size_yeu_cau: customData }
   };
 }
 
-module.exports = {
-  getPrice
-};
+module.exports = { getPrice };

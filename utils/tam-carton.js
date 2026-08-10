@@ -42,28 +42,40 @@ function tinhGiaTam(diaChi, data, formatPrice) {
 
   let phiBanIn = 0;
   let ghiChuIn = "";
+  let donGiaMauMin = 0;
+  let donGiaMauMax = 0;
+  let congInMoiTamMin = 0;
+  let congInMoiTamMax = 0;
   if (coIn && soMauIn > 0) {
-    let donGiaMau;
-    let congInMoiTam;
     if (diaChi === "HCM") {
-      donGiaMau = banInPhucTap ? 750 : 350;
-      congInMoiTam = donGiaMau * soMauIn;
+      // HCM trả KHOẢNG giá in (chưa có mức mặc định chính xác):
+      // in đơn giản 300–400đ/màu/tấm, in phức tạp 500–1.000đ/màu/tấm.
+      donGiaMauMin = banInPhucTap ? 500 : 300;
+      donGiaMauMax = banInPhucTap ? 1000 : 400;
+      congInMoiTamMin = donGiaMauMin * soMauIn;
+      congInMoiTamMax = donGiaMauMax * soMauIn;
       phiBanIn = (banInPhucTap ? 800000 : 600000) * soMauIn;
-      ghiChuIn = ` Công in ${soMauIn} màu, đơn giá ${donGiaMau}đ/màu/tấm (đã cộng vào đơn giá tấm). Phí bản in: ${soMauIn} bản x ${banInPhucTap ? "800.000đ" : "600.000đ"}/bản.`;
+      ghiChuIn = ` Công in ${soMauIn} màu, đơn giá khoảng ${formatPrice(donGiaMauMin)}–${formatPrice(donGiaMauMax)}đ/màu/tấm (đã cộng vào đơn giá tấm). Phí bản in: ${soMauIn} bản x ${banInPhucTap ? "800.000đ" : "600.000đ"}/bản.`;
     } else {
-      if (donGiaTam3Lop < 5000) donGiaMau = 200;
-      else if (donGiaTam3Lop < 10000) donGiaMau = 300;
-      else donGiaMau = 500;
-      congInMoiTam = donGiaMau * soMauIn;
+      if (donGiaTam3Lop < 5000) donGiaMauMin = 200;
+      else if (donGiaTam3Lop < 10000) donGiaMauMin = 300;
+      else donGiaMauMin = 500;
+      donGiaMauMax = donGiaMauMin;
+      congInMoiTamMin = donGiaMauMin * soMauIn;
+      congInMoiTamMax = congInMoiTamMin;
       phiBanIn = (banInPhucTap ? 800000 : 500000) * soMauIn;
-      ghiChuIn = ` Công in ${soMauIn} màu, đơn giá ${donGiaMau}đ/màu/tấm. Phí bản in: ${soMauIn} bản x ${banInPhucTap ? "800.000đ" : "500.000đ"}/bản.`;
+      ghiChuIn = ` Công in ${soMauIn} màu, đơn giá ${formatPrice(donGiaMauMin)}đ/màu/tấm. Phí bản in: ${soMauIn} bản x ${banInPhucTap ? "800.000đ" : "500.000đ"}/bản.`;
     }
-    donGiaTam3Lop += congInMoiTam;
   }
 
-  const thanhTien3Lop = donGiaTam3Lop * SL + phiKhuonBe + phiBanIn;
-  const donGiaTam5Lop = donGiaTam3Lop * 1.5;
-  const thanhTien5Lop = donGiaTam5Lop * SL + phiKhuonBe + phiBanIn;
+  const donGiaTam3LopMin = donGiaTam3Lop + congInMoiTamMin;
+  const donGiaTam3LopMax = donGiaTam3Lop + congInMoiTamMax;
+  const thanhTien3LopMin = donGiaTam3LopMin * SL + phiKhuonBe + phiBanIn;
+  const thanhTien3LopMax = donGiaTam3LopMax * SL + phiKhuonBe + phiBanIn;
+  const donGiaTam5LopMin = donGiaTam3LopMin * 1.5;
+  const donGiaTam5LopMax = donGiaTam3LopMax * 1.5;
+  const thanhTien5LopMin = donGiaTam5LopMin * SL + phiKhuonBe + phiBanIn;
+  const thanhTien5LopMax = donGiaTam5LopMax * SL + phiKhuonBe + phiBanIn;
 
   const dieuKienKhuonBe = diaChi === "HCM"
     ? "Rộng<25cm và Dài<60cm"
@@ -72,6 +84,8 @@ function tinhGiaTam(diaChi, data, formatPrice) {
     ? `Tấm có ${dieuKienKhuonBe} nên cần khuôn bế, đã cộng 200đ/tấm và phí khuôn bế ${formatPrice(phiKhuonBe)}đ (1 lần).`
     : "Tấm không cần khuôn bế.";
 
+  const coKhoangGia = diaChi === "HCM" && coIn && soMauIn > 0;
+
   return {
     success: true,
     type: "tam_carton",
@@ -79,14 +93,28 @@ function tinhGiaTam(diaChi, data, formatPrice) {
     data: {
       loai_san_pham: "Tấm carton",
       can_khuon_be: canKhuonBe,
-      tam_3_lop: {
-        don_gia_tam: formatPrice(Math.round(donGiaTam3Lop)),
-        thanh_tien: formatPrice(Math.round(thanhTien3Lop))
-      },
-      tam_5_lop: {
-        don_gia_tam: formatPrice(Math.round(donGiaTam5Lop)),
-        thanh_tien: formatPrice(Math.round(thanhTien5Lop))
-      },
+      tam_3_lop: coKhoangGia
+        ? {
+            don_gia_tu: formatPrice(Math.round(donGiaTam3LopMin)),
+            don_gia_den: formatPrice(Math.round(donGiaTam3LopMax)),
+            thanh_tien_tu: formatPrice(Math.round(thanhTien3LopMin)),
+            thanh_tien_den: formatPrice(Math.round(thanhTien3LopMax))
+          }
+        : {
+            don_gia_tam: formatPrice(Math.round(donGiaTam3LopMin)),
+            thanh_tien: formatPrice(Math.round(thanhTien3LopMin))
+          },
+      tam_5_lop: coKhoangGia
+        ? {
+            don_gia_tu: formatPrice(Math.round(donGiaTam5LopMin)),
+            don_gia_den: formatPrice(Math.round(donGiaTam5LopMax)),
+            thanh_tien_tu: formatPrice(Math.round(thanhTien5LopMin)),
+            thanh_tien_den: formatPrice(Math.round(thanhTien5LopMax))
+          }
+        : {
+            don_gia_tam: formatPrice(Math.round(donGiaTam5LopMin)),
+            thanh_tien: formatPrice(Math.round(thanhTien5LopMin))
+          },
       phi_khuon_be: formatPrice(phiKhuonBe),
       phi_ban_in: formatPrice(phiBanIn),
       ghi_chu: ghiChuKhuonBe + ghiChuIn

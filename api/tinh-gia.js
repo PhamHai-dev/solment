@@ -27,12 +27,21 @@ module.exports = async (req, res) => {
     // bắt buộc khi loai_san_pham là Tấm carton.
     const isTamCarton = data.loai_san_pham === "Tấm carton";
 
+    // ---- Chỉ chấp nhận đúng 2 khu vực; không âm thầm coi địa chỉ lạ là HN ----
+    if (data.dia_chi !== "HN" && data.dia_chi !== "HCM") {
+      return res.status(400).json({
+        success: false,
+        message: "dia_chi không hợp lệ, phải là HN hoặc HCM."
+      });
+    }
+
     const missingParams = [];
-    if (!data.dia_chi) missingParams.push("dia_chi (HN/HCM)");
-    if (!data.dai) missingParams.push("dai");
-    if (!data.rong) missingParams.push("rong");
-    if (!isTamCarton && !data.cao) missingParams.push("cao");
-    if (isTamCarton && !data.so_luong) missingParams.push("so_luong");
+    if (data.dai === undefined || data.dai === null || data.dai === "") missingParams.push("dai");
+    if (data.rong === undefined || data.rong === null || data.rong === "") missingParams.push("rong");
+    if (!isTamCarton && (data.cao === undefined || data.cao === null || data.cao === "")) missingParams.push("cao");
+    if (isTamCarton && (data.so_luong === undefined || data.so_luong === null || data.so_luong === "")) {
+      missingParams.push("so_luong");
+    }
 
     if (missingParams.length > 0) {
       return res.status(400).json({
@@ -42,13 +51,55 @@ module.exports = async (req, res) => {
       });
     }
 
+    // ---- Validate số học: phải là số hữu hạn và lớn hơn 0; chặn chuỗi lạ,
+    // NaN, Infinity và giá trị 0/âm trước khi vào công thức. ----
+    const errors = [];
+    const parsed = {};
+    const numericParams = [
+      { raw: data.dai, label: "dai", required: true },
+      { raw: data.rong, label: "rong", required: true },
+      { raw: isTamCarton ? undefined : data.cao, label: "cao", required: !isTamCarton },
+      { raw: data.so_luong, label: "so_luong", required: isTamCarton }
+    ];
+    for (const p of numericParams) {
+      if (p.raw === undefined || p.raw === null || p.raw === "") {
+        if (p.required) errors.push(`${p.label} phải là số dương hợp lệ`);
+        continue;
+      }
+      const num = Number(p.raw);
+      if (!Number.isFinite(num) || num <= 0) {
+        errors.push(`${p.label} phải là số dương hợp lệ`);
+      } else {
+        parsed[p.label] = p.label === "so_luong" ? Math.floor(num) : num;
+      }
+    }
+
+    const coIn = data.in_an === true || data.in_an === "true" || data.in_an === "1";
+    if (coIn) {
+      let soMau = 1;
+      if (data.so_mau_in !== undefined && data.so_mau_in !== null && data.so_mau_in !== "") {
+        soMau = Number(data.so_mau_in);
+        if (!Number.isInteger(soMau) || soMau < 1) {
+          errors.push("so_mau_in phải là số nguyên dương");
+        }
+      }
+      parsed.so_mau_in = soMau;
+    }
+
+    if (errors.length > 0) {
+      return res.status(400).json({ success: false, message: errors.join(". ") });
+    }
+
     // Convert string booleans to real booleans
     const requestData = {
       ...data,
-      in_an: data.in_an === true || data.in_an === "true" || data.in_an === "1",
+      dai: parsed.dai,
+      rong: parsed.rong,
+      ...(isTamCarton ? {} : { cao: parsed.cao }),
+      so_luong: parsed.so_luong !== undefined ? parsed.so_luong : null,
+      in_an: coIn,
       ban_in_phuc_tap: data.ban_in_phuc_tap === true || data.ban_in_phuc_tap === "true" || data.ban_in_phuc_tap === "1",
-      so_luong: data.so_luong ? parseInt(data.so_luong, 10) : null,
-      so_mau_in: data.so_mau_in ? parseInt(data.so_mau_in, 10) : 1
+      so_mau_in: parsed.so_mau_in || 1
     };
 
     const result = getPrice(requestData);
