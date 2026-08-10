@@ -38,6 +38,7 @@ const SIZE_CO_SAN_HN = [
   { loai_hop: "Đối khẩu", D: 35, R: 25, C: 15, gia_le: 4000, gia_si: 3800 },
   { loai_hop: "Đối khẩu", D: 40, R: 30, C: 20, gia_le: 5900, gia_si: 5600 },
   { loai_hop: "Đối khẩu", D: 60, R: 40, C: 40, gia_le: 16000, gia_si: 15200 },
+
   { loai_hop: "Nắp gài pizza", D: 12, R: 8, C: 4, gia_le: 1000, gia_si: 850 },
   { loai_hop: "Nắp gài pizza", D: 15, R: 10, C: 5, gia_le: 1150, gia_si: 1100 },
   { loai_hop: "Nắp gài pizza", D: 15, R: 15, C: 5, gia_le: 1450, gia_si: 1350 },
@@ -49,6 +50,7 @@ const SIZE_CO_SAN_HN = [
   { loai_hop: "Nắp gài pizza", D: 30, R: 20, C: 7, gia_le: 3250, gia_si: 3100 },
   { loai_hop: "Nắp gài pizza", D: 30, R: 25, C: 6, gia_le: 3100, gia_si: 2950 },
   { loai_hop: "Nắp gài pizza", D: 35, R: 25, C: 7, gia_le: 3680, gia_si: 3600 },
+
   { loai_hop: "Nắp cài 2 đầu", D: 8.5, R: 5, C: 8.5, gia_le: 800, gia_si: 690 },
   { loai_hop: "Nắp cài 2 đầu", D: 10, R: 4, C: 18, gia_le: 950, gia_si: 790 }
 ];
