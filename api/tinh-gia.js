@@ -23,11 +23,16 @@ module.exports = async (req, res) => {
     // Cho phép gọi bằng cả GET (query params) và POST (JSON body)
     const data = req.method === "POST" ? req.body : req.query;
 
+    // Tấm carton dùng dai/rong/so_luong, không cần cao - bỏ qua check "cao"
+    // bắt buộc khi loai_san_pham là Tấm carton.
+    const isTamCarton = data.loai_san_pham === "Tấm carton";
+
     const missingParams = [];
     if (!data.dia_chi) missingParams.push("dia_chi (HN/HCM)");
     if (!data.dai) missingParams.push("dai");
     if (!data.rong) missingParams.push("rong");
-    if (!data.cao) missingParams.push("cao");
+    if (!isTamCarton && !data.cao) missingParams.push("cao");
+    if (isTamCarton && !data.so_luong) missingParams.push("so_luong");
 
     if (missingParams.length > 0) {
       return res.status(400).json({
@@ -41,6 +46,7 @@ module.exports = async (req, res) => {
     const requestData = {
       ...data,
       in_an: data.in_an === true || data.in_an === "true" || data.in_an === "1",
+      ban_in_phuc_tap: data.ban_in_phuc_tap === true || data.ban_in_phuc_tap === "true" || data.ban_in_phuc_tap === "1",
       so_luong: data.so_luong ? parseInt(data.so_luong, 10) : null,
       so_mau_in: data.so_mau_in ? parseInt(data.so_mau_in, 10) : 1
     };
