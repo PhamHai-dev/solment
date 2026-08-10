@@ -311,6 +311,30 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
   };
 }
 
+function coSoLuongHopLe(soLuong) {
+  const num = Number(soLuong);
+  return Number.isFinite(num) && num > 0;
+}
+
+function taoBangGiaCoSan(box, diaChi, hienGiaLe = true) {
+  const bangGia = [];
+
+  if (diaChi === "HN") {
+    if (hienGiaLe) {
+      bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
+    }
+    bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(box.gia_si) });
+  } else {
+    if (hienGiaLe) {
+      bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
+    }
+    bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(box.gia_si_300) });
+    bangGia.push({ muc: "Giá sỉ (từ 1000 cái)", gia: formatPrice(box.gia_si_1000) });
+  }
+
+  return bangGia;
+}
+
 function getPrice(requestData) {
   const { dia_chi, loai_hop, dai, rong, cao, so_luong, in_an, so_mau_in, ban_in_phuc_tap, loai_san_pham } = requestData;
 
@@ -330,8 +354,14 @@ function getPrice(requestData) {
   if ([D, R, C].some((n) => !Number.isFinite(n) || n <= 0)) {
     return { success: false, message: "dai/rong/cao phải là số dương hợp lệ." };
   }
-  if (so_luong !== undefined && so_luong !== null && (!Number.isFinite(Number(so_luong)) || Number(so_luong) <= 0)) {
-    return { success: false, message: "so_luong phải là số dương hợp lệ." };
+  // Với HỘP, so_luong là optional:
+  // - null/undefined/""/0: coi như chưa cung cấp số lượng, vẫn cho phép tra hàng có sẵn.
+  // - số âm / NaN / Infinity: lỗi.
+  if (so_luong !== undefined && so_luong !== null && so_luong !== "") {
+    const slNum = Number(so_luong);
+    if (!Number.isFinite(slNum) || slNum < 0) {
+      return { success: false, message: "so_luong phải là số không âm hợp lệ." };
+    }
   }
   if (in_an === true || in_an === "true" || in_an === "1") {
     const mau = (so_mau_in === undefined || so_mau_in === null || so_mau_in === "") ? 1 : Number(so_mau_in);
@@ -368,15 +398,11 @@ function getPrice(requestData) {
   if (matches.length > 0 && !in_an) {
     if (matches.length === 1) {
       const matched = matches[0];
-      let bangGia = [];
-      if (diaChi === "HN") {
-        bangGia.push({ muc: "Giá lẻ", gia: formatPrice(matched.gia_le) });
-        bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(matched.gia_si) });
-      } else {
-        bangGia.push({ muc: "Giá lẻ", gia: formatPrice(matched.gia_le) });
-        bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(matched.gia_si_300) });
-        bangGia.push({ muc: "Giá sỉ (từ 1000 cái)", gia: formatPrice(matched.gia_si_1000) });
-      }
+      const coSoLuong = coSoLuongHopLe(so_luong);
+
+      // Có SL > 0: giữ nguyên output hiện tại, gồm Giá lẻ + các mốc Giá sỉ.
+      // Không có SL / SL = 0: bỏ riêng dòng Giá lẻ, vẫn trả các mốc Giá sỉ.
+      const bangGia = taoBangGiaCoSan(matched, diaChi, coSoLuong);
       return {
         success: true,
         type: "pre_made",
@@ -385,28 +411,23 @@ function getPrice(requestData) {
         data: {
           loai_hop: matched.loai_hop,
           kich_thuoc: `${D}x${R}x${C} cm`,
-          so_luong_yeu_cau: so_luong ? formatPrice(so_luong) : null,
+          so_luong_yeu_cau: coSoLuong ? formatPrice(so_luong) : null,
           bang_gia: bangGia,
           ghi_chu: "Hộp có sẵn, mua ít cũng bán.",
+          Hinh_anh: getHinhAnh(matched),
           hinh_anh: getHinhAnh(matched)
         }
       };
     } else {
+      const coSoLuong = coSoLuongHopLe(so_luong);
       let dataArr = matches.map((matched) => {
-        let bangGia = [];
-        if (diaChi === "HN") {
-          bangGia.push({ muc: "Giá lẻ", gia: formatPrice(matched.gia_le) });
-          bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(matched.gia_si) });
-        } else {
-          bangGia.push({ muc: "Giá lẻ", gia: formatPrice(matched.gia_le) });
-          bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(matched.gia_si_300) });
-          bangGia.push({ muc: "Giá sỉ (từ 1000 cái)", gia: formatPrice(matched.gia_si_1000) });
-        }
+        const bangGia = taoBangGiaCoSan(matched, diaChi, coSoLuong);
         return {
           loai_hop: matched.loai_hop,
           kich_thuoc: `${D}x${R}x${C} cm`,
           bang_gia: bangGia,
           ghi_chu: "",
+          Hinh_anh: getHinhAnh(matched),
           hinh_anh: getHinhAnh(matched)
         };
       });
@@ -473,6 +494,7 @@ function getPrice(requestData) {
       kich_thuoc: `${box.D}x${box.R}x${box.C} cm`,
       tieu_chi_tim_kiem: tieuChi,
       bang_gia: bangGia,
+      Hinh_anh: getHinhAnh(box),
       hinh_anh: getHinhAnh(box)
     };
   };
