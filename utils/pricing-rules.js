@@ -316,23 +316,67 @@ function coSoLuongHopLe(soLuong) {
   return Number.isFinite(num) && num > 0;
 }
 
-function taoBangGiaCoSan(box, diaChi, hienGiaLe = true) {
+function taoBangGiaCoSan(box, diaChi) {
+  // bang_gia luôn là bảng tham khảo đầy đủ của SKU, KHÔNG phụ thuộc so_luong.
+  // HN: Giá lẻ + Giá sỉ từ 300.
+  // HCM: Giá lẻ + Giá sỉ từ 300 + Giá sỉ từ 1000.
   const bangGia = [];
 
   if (diaChi === "HN") {
-    if (hienGiaLe) {
-      bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
-    }
+    bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
     bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(box.gia_si) });
   } else {
-    if (hienGiaLe) {
-      bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
-    }
+    bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
     bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(box.gia_si_300) });
     bangGia.push({ muc: "Giá sỉ (từ 1000 cái)", gia: formatPrice(box.gia_si_1000) });
   }
 
   return bangGia;
+}
+
+function chonGiaTheoSoLuong(box, diaChi, soLuong) {
+  // Chỉ tạo field giá áp dụng khi khách có so_luong > 0.
+  if (!coSoLuongHopLe(soLuong)) return null;
+
+  const qty = Math.floor(Number(soLuong));
+
+  if (diaChi === "HN") {
+    if (qty >= 300) {
+      return {
+        so_luong: formatPrice(qty),
+        muc_ap_dung: "Giá sỉ (từ 300 cái)",
+        gia: formatPrice(box.gia_si)
+      };
+    }
+
+    return {
+      so_luong: formatPrice(qty),
+      muc_ap_dung: "Giá lẻ",
+      gia: formatPrice(box.gia_le)
+    };
+  }
+
+  if (qty >= 1000) {
+    return {
+      so_luong: formatPrice(qty),
+      muc_ap_dung: "Giá sỉ (từ 1000 cái)",
+      gia: formatPrice(box.gia_si_1000)
+    };
+  }
+
+  if (qty >= 300) {
+    return {
+      so_luong: formatPrice(qty),
+      muc_ap_dung: "Giá sỉ (từ 300 cái)",
+      gia: formatPrice(box.gia_si_300)
+    };
+  }
+
+  return {
+    so_luong: formatPrice(qty),
+    muc_ap_dung: "Giá lẻ",
+    gia: formatPrice(box.gia_le)
+  };
 }
 
 function getPrice(requestData) {
@@ -400,9 +444,10 @@ function getPrice(requestData) {
       const matched = matches[0];
       const coSoLuong = coSoLuongHopLe(so_luong);
 
-      // Có SL > 0: giữ nguyên output hiện tại, gồm Giá lẻ + các mốc Giá sỉ.
-      // Không có SL / SL = 0: bỏ riêng dòng Giá lẻ, vẫn trả các mốc Giá sỉ.
-      const bangGia = taoBangGiaCoSan(matched, diaChi, coSoLuong);
+      // bang_gia luôn trả đủ Giá lẻ + Giá sỉ để làm thông tin tham khảo.
+      // gia_theo_so_luong chỉ xuất hiện khi so_luong > 0.
+      const bangGia = taoBangGiaCoSan(matched, diaChi);
+      const giaTheoSoLuong = chonGiaTheoSoLuong(matched, diaChi, so_luong);
       return {
         success: true,
         type: "pre_made",
@@ -412,6 +457,7 @@ function getPrice(requestData) {
           loai_hop: matched.loai_hop,
           kich_thuoc: `${D}x${R}x${C} cm`,
           so_luong_yeu_cau: coSoLuong ? formatPrice(so_luong) : null,
+          ...(giaTheoSoLuong ? { gia_theo_so_luong: giaTheoSoLuong } : {}),
           bang_gia: bangGia,
           ghi_chu: "Hộp có sẵn, mua ít cũng bán.",
           Hinh_anh: getHinhAnh(matched),
@@ -421,10 +467,13 @@ function getPrice(requestData) {
     } else {
       const coSoLuong = coSoLuongHopLe(so_luong);
       let dataArr = matches.map((matched) => {
-        const bangGia = taoBangGiaCoSan(matched, diaChi, coSoLuong);
+        const bangGia = taoBangGiaCoSan(matched, diaChi);
+        const giaTheoSoLuong = chonGiaTheoSoLuong(matched, diaChi, so_luong);
         return {
           loai_hop: matched.loai_hop,
           kich_thuoc: `${D}x${R}x${C} cm`,
+          so_luong_yeu_cau: coSoLuong ? formatPrice(so_luong) : null,
+          ...(giaTheoSoLuong ? { gia_theo_so_luong: giaTheoSoLuong } : {}),
           bang_gia: bangGia,
           ghi_chu: "",
           Hinh_anh: getHinhAnh(matched),
