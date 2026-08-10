@@ -71,8 +71,8 @@ function tinhGiaTam(diaChi, data, formatPrice) {
         ? "Tấm có Rộng<25cm VÀ Dài<60cm nên cần khuôn bế, đã cộng 200đ/tấm (áp dụng cho đơn giá 3 lớp trước khi nhân hệ số 5 lớp) và phí khuôn bế 600.000đ (1 lần)."
         : "Tấm không cần khuôn bế."
       : canKhuonBe
-      ? "Tấm có Rộng<25cm hoặc Dài<60cm nên cần khuôn bế, đã cộng 200đ/tấm và phí khuôn bế 600.000đ (1 lần)."
-      : "Tấm không cần khuôn bế.";
+        ? "Tấm có Rộng<25cm hoặc Dài<60cm nên cần khuôn bế, đã cộng 200đ/tấm và phí khuôn bế 600.000đ (1 lần)."
+        : "Tấm không cần khuôn bế.";
 
   return {
     success: true,
