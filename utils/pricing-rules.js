@@ -9,6 +9,9 @@ const formatPrice = (num) => {
   return String(rounded).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
+const NO_IMAGE_MESSAGE = "Size này chưa có ảnh minh hoạ.";
+const getHinhAnh = (box) => (box && box.hinh_anh ? box.hinh_anh : NO_IMAGE_MESSAGE);
+
 const LOAI_HOP_HOP_LE_HN = [
   "Đối khẩu", "Nắp chồm", "Nắp cài 2 đầu", "Hộp nắp chùm",
   "Hộp giày", "Nắp gài pizza", "Vách ngăn", "Hộp pizza"
@@ -385,7 +388,8 @@ function getPrice(requestData) {
           so_luong_yeu_cau: so_luong ? formatPrice(so_luong) : null,
           bang_gia: bangGia,
           ghi_chu: "Hộp có sẵn, mua ít cũng bán.",
-          hinh_anh: ""
+          Hinh_anh: getHinhAnh(matched),
+          hinh_anh: getHinhAnh(matched)
         }
       };
     } else {
@@ -404,7 +408,8 @@ function getPrice(requestData) {
           kich_thuoc: `${D}x${R}x${C} cm`,
           bang_gia: bangGia,
           ghi_chu: "",
-          hinh_anh: ""
+          Hinh_anh: getHinhAnh(matched),
+          hinh_anh: getHinhAnh(matched)
         };
       });
       return {
@@ -469,7 +474,9 @@ function getPrice(requestData) {
       loai_hop: box.loai_hop,
       kich_thuoc: `${box.D}x${box.R}x${box.C} cm`,
       tieu_chi_tim_kiem: tieuChi,
-      bang_gia: bangGia
+      bang_gia: bangGia,
+      Hinh_anh: getHinhAnh(box),
+      hinh_anh: getHinhAnh(box)
     };
   };
 

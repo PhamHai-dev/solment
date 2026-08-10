@@ -95,26 +95,26 @@ function tinhGiaTam(diaChi, data, formatPrice) {
       can_khuon_be: canKhuonBe,
       tam_3_lop: coKhoangGia
         ? {
-            don_gia_tu: formatPrice(Math.round(donGiaTam3LopMin)),
-            don_gia_den: formatPrice(Math.round(donGiaTam3LopMax)),
-            thanh_tien_tu: formatPrice(Math.round(thanhTien3LopMin)),
-            thanh_tien_den: formatPrice(Math.round(thanhTien3LopMax))
-          }
+          don_gia_tu: formatPrice(Math.round(donGiaTam3LopMin)),
+          don_gia_den: formatPrice(Math.round(donGiaTam3LopMax)),
+          thanh_tien_tu: formatPrice(Math.round(thanhTien3LopMin)),
+          thanh_tien_den: formatPrice(Math.round(thanhTien3LopMax))
+        }
         : {
-            don_gia_tam: formatPrice(Math.round(donGiaTam3LopMin)),
-            thanh_tien: formatPrice(Math.round(thanhTien3LopMin))
-          },
+          don_gia_tam: formatPrice(Math.round(donGiaTam3LopMin)),
+          thanh_tien: formatPrice(Math.round(thanhTien3LopMin))
+        },
       tam_5_lop: coKhoangGia
         ? {
-            don_gia_tu: formatPrice(Math.round(donGiaTam5LopMin)),
-            don_gia_den: formatPrice(Math.round(donGiaTam5LopMax)),
-            thanh_tien_tu: formatPrice(Math.round(thanhTien5LopMin)),
-            thanh_tien_den: formatPrice(Math.round(thanhTien5LopMax))
-          }
+          don_gia_tu: formatPrice(Math.round(donGiaTam5LopMin)),
+          don_gia_den: formatPrice(Math.round(donGiaTam5LopMax)),
+          thanh_tien_tu: formatPrice(Math.round(thanhTien5LopMin)),
+          thanh_tien_den: formatPrice(Math.round(thanhTien5LopMax))
+        }
         : {
-            don_gia_tam: formatPrice(Math.round(donGiaTam5LopMin)),
-            thanh_tien: formatPrice(Math.round(thanhTien5LopMin))
-          },
+          don_gia_tam: formatPrice(Math.round(donGiaTam5LopMin)),
+          thanh_tien: formatPrice(Math.round(thanhTien5LopMin))
+        },
       phi_khuon_be: formatPrice(phiKhuonBe),
       phi_ban_in: formatPrice(phiBanIn),
       ghi_chu: ghiChuKhuonBe + ghiChuIn
