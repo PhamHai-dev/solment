@@ -62,24 +62,22 @@ function tinhKhoGiayChatHN(normalizedType, D, R, C, H, G) {
 }
 
 function timBatToiUuHN(normalizedType, D, R, C) {
-  let best = null;
-  for (let H = 1; H <= 20; H += 1) {
-    for (let G = 1; G <= 20; G += 1) {
-      const { khoGiay, chat } = tinhKhoGiayChatHN(normalizedType, D, R, C, H, G);
-      if (!vuaKhoMayBe(khoGiay, chat, "HN")) continue;
-      const soBat = H * G;
-      const dienTichM2MoiHop = (khoGiay * chat) / 10000 / soBat;
-      if (!best || dienTichM2MoiHop < best.dienTichM2MoiHop - 1e-12 ||
-        (Math.abs(dienTichM2MoiHop - best.dienTichM2MoiHop) <= 1e-12 && soBat < best.soBat)) {
-        best = { H, G, khoGiay, chat, soBat, dienTichM2MoiHop };
-      }
-    }
-  }
-  if (!best) {
-    const { khoGiay, chat } = tinhKhoGiayChatHN(normalizedType, D, R, C, 1, 1);
-    return { H: 1, G: 1, khoGiay, chat, soBat: 1, vuaKhoMay: false };
-  }
-  return { ...best, vuaKhoMay: true };
+  // Mặc định theo file Excel: 1 bát dọc (H) × 1 bát ngang (G).
+  const H = 1;
+  const G = 1;
+  const { khoGiay, chat } = tinhKhoGiayChatHN(normalizedType, D, R, C, H, G);
+  const soBat = 1;
+  const dienTichM2MoiHop = (khoGiay * chat) / 10000;
+
+  return {
+    H,
+    G,
+    khoGiay,
+    chat,
+    soBat,
+    dienTichM2MoiHop,
+    vuaKhoMay: vuaKhoMayBe(khoGiay, chat, "HN")
+  };
 }
 
 function tinhMayBeHN(loaiHop, D, R, C, SL) {

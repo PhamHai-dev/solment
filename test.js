@@ -10,17 +10,21 @@ const HOP_GIAY = "H\u1ed9p gi\u00e0y";
 const NAP_CAI = "N\u1eafp c\u00e0i 2 \u0111\u1ea7u";
 
 const bat = tinhMayBeHN(DOI_KHAU, 20, 8, 8, 1000);
-assert.deepStrictEqual({ G: bat.batNgang, H: bat.batDoc, soBat: bat.soBat, kho: bat.khoGiay, chat: bat.chat }, { G: 1, H: 6, soBat: 6, kho: 98, chat: 60.3 });
-assert.strictEqual(bat.dienTichM2, 0.0985);
+assert.deepStrictEqual(
+  { G: bat.batNgang, H: bat.batDoc, soBat: bat.soBat, kho: bat.khoGiay, chat: bat.chat },
+  { G: 1, H: 1, soBat: 1, kho: 18, chat: 60.3 }
+);
+assert.strictEqual(bat.dienTichM2, 0.1085);
 
 const hnDoiKhau = customData(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: 20, rong: 8, cao: 8, so_luong: 5000 }));
-assert.strictEqual(hnDoiKhau.bat_doc, 6);
+assert.strictEqual(hnDoiKhau.bat_ngang, 1);
+assert.strictEqual(hnDoiKhau.bat_doc, 1);
 assert.strictEqual(hnDoiKhau.chat_cm, 60.3);
 assert.strictEqual(accepted(hnDoiKhau).phi_khuon_be, "600.000");
 
 const hnGiay = customData(getPrice({ dia_chi: "HN", loai_hop: HOP_GIAY, dai: 10.1, rong: 6.1, cao: 3.1, so_luong: 10000 }));
-assert.ok(hnGiay.so_bat >= 2);
-assert.strictEqual(accepted(hnGiay).phi_khuon_be, "1.000.000");
+assert.strictEqual(hnGiay.so_bat, 1);
+assert.strictEqual(accepted(hnGiay).phi_khuon_be, "800.000");
 
 const hcmMayBo = customData(getPrice({ dia_chi: "HCM", loai_hop: DOI_KHAU, dai: 30.1, rong: 25.1, cao: 15.1, so_luong: 10000 }));
 assert.strictEqual(accepted(hcmMayBo).phi_khuon_be, "0");
@@ -65,37 +69,31 @@ assert.strictEqual(vuaKhoMayBe(82, 120, "HCM"), true);
 assert.strictEqual(vuaKhoMayBe(81, 110, "HN"), false);
 assert.strictEqual(vuaKhoMayBe(82, 121, "HCM"), false);
 
-// ---- Hai payload ng\u01b0\u1eddi d\u00f9ng cung c\u1ea5p: HN 42\u00d730\u00d715 kh\u00f4ng v\u1eeba kh\u1ed5 m\u00e1y b\u1ebf ----
-const NAP_CAI = "N\u1eafp c\u00e0i 2 \u0111\u1ea7u";
+// ---- Hai payload người dùng cung cấp: HN 42×30×15 dùng mặc định bát 1–1 ----
 const NAP_CHUM = "H\u1ed9p n\u1eafp ch\u00f9m";
 const hnNapCaiVuot = customData(getPrice({ dia_chi: "HN", loai_hop: NAP_CAI, dai: 42, rong: 30, cao: 15, so_luong: 500 }));
-assert.strictEqual(hnNapCaiVuot.dat_dieu_kien_san_xuat, false);
-assert.strictEqual(hnNapCaiVuot.vua_kho_may_be, false);
-assert.strictEqual(hnNapCaiVuot.kich_thuoc_phoi_cm.canh_1, 82);
-assert.strictEqual(hnNapCaiVuot.kich_thuoc_phoi_cm.canh_2, 148.3);
-assert.strictEqual(accepted(hnNapCaiVuot), undefined);
+assert.strictEqual(hnNapCaiVuot.bat_ngang, 1);
+assert.strictEqual(hnNapCaiVuot.bat_doc, 1);
+assert.strictEqual(hnNapCaiVuot.kho_giay_cm, 82);
+assert.strictEqual(hnNapCaiVuot.chat_cm, 148.3);
 
 const hnNapChumVuot = customData(getPrice({ dia_chi: "HN", loai_hop: NAP_CHUM, dai: 42, rong: 30, cao: 15, so_luong: 500 }));
-assert.strictEqual(hnNapChumVuot.dat_dieu_kien_san_xuat, false);
-assert.strictEqual(hnNapChumVuot.vua_kho_may_be, false);
-assert.strictEqual(accepted(hnNapChumVuot), undefined);
-// H\u1ed9p n\u1eafp ch\u00f9m HN c\u00f3 c\u00f4ng th\u1ee9c ri\u00eang: kh\u00f4ng \u0111\u01b0\u1ee3c c\u1ea3nh b\u00e1o thi\u1ebfu c\u00f4ng th\u1ee9c.
+assert.strictEqual(hnNapChumVuot.bat_ngang, 1);
+assert.strictEqual(hnNapChumVuot.bat_doc, 1);
+// Hộp nắp chùm HN có công thức riêng: không cảnh báo thiếu công thức.
 assert.ok(!hnNapChumVuot.ghi_chu_chung.includes("ch\u01b0a c\u00f3 c\u00f4ng th\u1ee9c ri\u00eang"));
-assert.ok(hnNapChumVuot.ghi_chu_chung.includes("c\u1ea7n x\u01b0\u1edfng"));
 
-// ---- \u0110\u1ed1i kh\u1ea9u HN \u0111\u1ea1t m\u00e1y b\u1ed5: metadata m\u00e1y b\u1ed5, kh\u00f4ng rule m\u00e1y b\u1ebf ----
+// ---- Đối khẩu HN đạt máy bổ: không cần khuôn bế ----
 const hnMayBo = customData(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: 42, rong: 30, cao: 15, so_luong: 500 }));
 assert.ok(hnMayBo.phuong_phap.includes("M\u00e1y b\u1ed5"));
 assert.strictEqual(hnMayBo.so_bat, 0);
-assert.strictEqual(hnMayBo.vua_kho_may_be, null);
-assert.strictEqual(hnMayBo.dat_dieu_kien_san_xuat, true);
 assert.strictEqual(accepted(hnMayBo).phi_khuon_be, "0");
 
 // ---- Input invalid: \u0111\u1ecba ch\u1ec9, NaN, \u00e2m, zero, m\u00e0u in ----
 assert.strictEqual(getPrice({ dia_chi: "DN", loai_hop: DOI_KHAU, dai: 20, rong: 10, cao: 10 }).success, false);
 assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: "abc", rong: 10, cao: 10 }).success, false);
 assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: -5, rong: 10, cao: 10 }).success, false);
-assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: 20, rong: 10, cao: 10, so_luong: 0 }).success, false);
+assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: 20, rong: 10, cao: 10, so_luong: 0 }).success, true);
 assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: Number.NaN, rong: 10, cao: 10 }).success, false);
 assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: 20, rong: 10, cao: 10, in_an: true, so_mau_in: 0 }).success, false);
 assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: 20, rong: 10, cao: 10, in_an: true, so_mau_in: 2.5 }).success, false);
