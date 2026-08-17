@@ -1,5 +1,5 @@
 const assert = require("assert");
-const { vuaKhoMayBe, tinhMayBeHN, tinhGiaHCM } = require("./utils/formulas");
+const { tinhMayBeHN, tinhGiaHCM } = require("./utils/formulas");
 const { getPrice } = require("./utils/pricing-rules");
 const { tinhGiaTam } = require("./utils/tam-carton");
 const customData = (r) => r.data && r.data.size_yeu_cau ? r.data.size_yeu_cau : r.data;
@@ -63,11 +63,6 @@ assert.ok(hcmVachNgan.ghi_chu_chung.includes("\u00b15%"));
 // Vách ngăn chưa có công thức riêng: phải cảnh báo CTV ở cả hai vùng.
 assert.ok(hcmVachNgan.ghi_chu_chung.includes("ch\u01b0a c\u00f3 c\u00f4ng th\u1ee9c ri\u00eang"));
 
-// ---- Ph\u00f4i \u0111\u00fang bi\u00ean kh\u1ed5 m\u00e1y b\u1ebf \u0111\u01b0\u1ee3c coi l\u00e0 v\u1eeba ----
-assert.strictEqual(vuaKhoMayBe(80, 110, "HN"), true);
-assert.strictEqual(vuaKhoMayBe(82, 120, "HCM"), true);
-assert.strictEqual(vuaKhoMayBe(81, 110, "HN"), false);
-assert.strictEqual(vuaKhoMayBe(82, 121, "HCM"), false);
 
 // ---- Hai payload người dùng cung cấp: HN 42×30×15 dùng mặc định bát 1–1 ----
 const NAP_CHUM = "H\u1ed9p n\u1eafp ch\u00f9m";

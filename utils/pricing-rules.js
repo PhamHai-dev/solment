@@ -237,9 +237,6 @@ function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, ban
           phiBanInCuoi = 0;
           ghiChuUuDai.push("Đơn trên 15 triệu: miễn phí bản in.");
         }
-      } else if (diaChi === "HN" && thanhTienHop >= 7000000) {
-        phiKhuonBeCuoi = phiKhuonBeGoc * 0.5;
-        ghiChuUuDai.push("Đơn trên 7 triệu: hỗ trợ 50% phí khuôn bế.");
       }
 
       const tongMin = Math.ceil((thanhTienHop + phiKhuonBeCuoi + phiBanInCuoi) / 1000) * 1000;

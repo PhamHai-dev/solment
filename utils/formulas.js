@@ -8,8 +8,9 @@ const KHO_MAY_BE = {
 
 function vuaKhoMayBe(khoGiay, chat, diaChi) {
   const may = KHO_MAY_BE[diaChi] || KHO_MAY_BE.HN;
-  return (khoGiay <= may.canhNgan && chat <= may.canhDai) ||
-    (khoGiay <= may.canhDai && chat <= may.canhNgan);
+  // khoGiay luôn so với cạnh ngắn của máy, chat luôn so với cạnh dài -
+  // KHÔNG hoán vị (máy bế không xoay phôi 90°).
+  return khoGiay <= may.canhNgan && chat <= may.canhDai;
 }
 
 function tinhGiaVatLieuHN(dienTichM2) {
@@ -61,23 +62,15 @@ function tinhKhoGiayChatHN(normalizedType, D, R, C, H, G) {
   return { khoGiay, chat };
 }
 
+// Mặc định theo file Excel: 1 bát dọc (H) × 1 bát ngang (G).
 function timBatToiUuHN(normalizedType, D, R, C) {
-  // Mặc định theo file Excel: 1 bát dọc (H) × 1 bát ngang (G).
   const H = 1;
   const G = 1;
   const { khoGiay, chat } = tinhKhoGiayChatHN(normalizedType, D, R, C, H, G);
   const soBat = 1;
   const dienTichM2MoiHop = (khoGiay * chat) / 10000;
 
-  return {
-    H,
-    G,
-    khoGiay,
-    chat,
-    soBat,
-    dienTichM2MoiHop,
-    vuaKhoMay: vuaKhoMayBe(khoGiay, chat, "HN")
-  };
+  return { H, G, khoGiay, chat, soBat, dienTichM2MoiHop };
 }
 
 function tinhMayBeHN(loaiHop, D, R, C, SL) {
@@ -87,10 +80,9 @@ function tinhMayBeHN(loaiHop, D, R, C, SL) {
   return {
     phuong_phap: "Máy bế (cần khuôn bế riêng)",
     loaiMay: "may_be",
-    kichThuocMay: KHO_MAY_BE.HN,
     khoGiay: parseFloat(bat.khoGiay.toFixed(2)), chat: parseFloat(bat.chat.toFixed(2)),
     dienTichM2: parseFloat(dienTichM2.toFixed(4)), batNgang: bat.G, batDoc: bat.H,
-    soBat: bat.soBat, vuaKhoMayBe: bat.vuaKhoMay,
+    soBat: bat.soBat,
     gia_3lop1nau: gia3lop1nau, gia_3lop2nau: Math.ceil(gia3lop1nau * 1.15),
     gia_trangnau: Math.ceil(gia3lop1nau * 1.35), gia_5lop1nau: Math.ceil(gia3lop1nau * 1.5),
     gia_5lop2nau: Math.ceil(gia3lop1nau * 1.5 * 1.1)
@@ -104,10 +96,9 @@ function tinhMayBoHN(D, R, C, SL) {
   const gia3lop1nau = Math.ceil(((dienTichM2 * 8500) + 150 + 100000 / SL) / 10) * 10;
   return {
     phuong_phap: "Máy bổ (không cần khuôn bế)", loaiMay: "may_bo",
-    kichThuocMay: { khoGiay: 92, chat: 220 },
     khoGiay: parseFloat(khoGiay.toFixed(2)),
     chat: parseFloat(chat.toFixed(2)), dienTichM2: parseFloat(dienTichM2.toFixed(4)),
-    batNgang: 0, batDoc: 0, soBat: 0, vuaKhoMayBe: null,
+    batNgang: 0, batDoc: 0, soBat: 0,
     gia_3lop1nau: gia3lop1nau, gia_3lop2nau: Math.ceil(gia3lop1nau * 1.15),
     gia_trangnau: Math.ceil(gia3lop1nau * 1.35), gia_5lop1nau: Math.ceil(gia3lop1nau * 1.5),
     gia_5lop2nau: Math.ceil(gia3lop1nau * 1.5 * 1.1)
@@ -135,13 +126,13 @@ function tinhGiaHCM(loaiHop, D, R, C, SL) {
   const dienTichM2 = (khoGiay * chat) / 10000;
   const gia3lop = Math.ceil(dienTichM2 * tinhGiaVatLieuHCM(dienTichM2) + 200 + 100000 / SL);
   return {
-    phuong_phap: "Máy bế tại TP.HCM", loaiMay: "may_be", kichThuocMay: KHO_MAY_BE.HCM,
+    phuong_phap: "Máy bế tại TP.HCM", loaiMay: "may_be",
     dienTichM2: parseFloat(dienTichM2.toFixed(4)),
     khoGiay: parseFloat(khoGiay.toFixed(2)), chat: parseFloat(chat.toFixed(2)),
-    batNgang: 1, batDoc: 1, soBat: 1, vuaKhoMayBe: vuaKhoMayBe(khoGiay, chat, "HCM"),
+    batNgang: 1, batDoc: 1, soBat: 1,
     gia_3lop1nau: gia3lop, gia_3lop2nau: gia3lop, gia_trangnau: Math.ceil(gia3lop * 1.35),
     gia_5lop1nau: Math.ceil(gia3lop * 1.5), gia_5lop2nau: Math.ceil(gia3lop * 1.5)
   };
 }
 
-module.exports = { KHO_MAY_BE, vuaKhoMayBe, tinhKhoGiayChatHN, timBatToiUuHN, tinhMayBeHN, tinhMayBoHN, tinhGiaHCM };
+module.exports = { KHO_MAY_BE, tinhKhoGiayChatHN, timBatToiUuHN, tinhMayBeHN, tinhMayBoHN, tinhGiaHCM };
