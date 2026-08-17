@@ -112,4 +112,21 @@ const giayUuDai = hcmLarge.theo_loai_giay["3lop1nau"];
 assert.ok(giayUuDai.ghi_chu_uu_dai.includes("0,95"));
 assert.ok(giayUuDai.ghi_chu_uu_dai.includes("30 tri\u1ec7u"));
 
+// ---- Tất cả hộp HN: sỉ khi từ 300 hộp VÀ tổng giá lẻ trên 300.000đ ----
+const giaHopGiayHN = (soLuong) => getPrice({
+  dia_chi: "HN", loai_hop: HOP_GIAY, dai: 31, rong: 19, cao: 11, so_luong: soLuong
+});
+const hopGiay299 = giaHopGiayHN(299);
+const hopGiay300 = giaHopGiayHN(300);
+assert.strictEqual(hopGiay299.type, "pre_made");
+assert.strictEqual(hopGiay299.data.gia_theo_so_luong.gia, "3.600");
+assert.strictEqual(hopGiay300.data.gia_theo_so_luong.gia, "3.300");
+assert.ok(hopGiay300.data.gia_theo_so_luong.muc_ap_dung.includes("và đơn trên 300.000"));
+
+const giaHopPizzaHN = (soLuong) => getPrice({
+  dia_chi: "HN", loai_hop: "Nắp gài pizza", dai: 12, rong: 8, cao: 4, so_luong: soLuong
+});
+assert.strictEqual(giaHopPizzaHN(300).data.gia_theo_so_luong.gia, "1.000");
+assert.strictEqual(giaHopPizzaHN(301).data.gia_theo_so_luong.gia, "850");
+
 console.log("All pricing tests passed.");

@@ -52,7 +52,9 @@ const SIZE_CO_SAN_HN = [
   { loai_hop: "Nắp gài pizza", D: 35, R: 25, C: 7, gia_le: 3680, gia_si: 3600, hinh_anh: null },
 
   { loai_hop: "Nắp cài 2 đầu", D: 8.5, R: 5, C: 8.5, gia_le: 800, gia_si: 690, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/8.5x5x8.5.png" },
-  { loai_hop: "Nắp cài 2 đầu", D: 10, R: 4, C: 18, gia_le: 950, gia_si: 790, hinh_anh: null }
+  { loai_hop: "Nắp cài 2 đầu", D: 10, R: 4, C: 18, gia_le: 950, gia_si: 790, hinh_anh: null },
+
+  { loai_hop: "Hộp giày", D: 31, R: 19, C: 11, gia_le: 3600, gia_si: 3300, hinh_anh: null }
 ];
 
 const SIZE_CO_SAN_HCM = [

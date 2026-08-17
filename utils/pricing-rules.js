@@ -315,13 +315,13 @@ function coSoLuongHopLe(soLuong) {
 
 function taoBangGiaCoSan(box, diaChi) {
   // bang_gia luôn là bảng tham khảo đầy đủ của SKU, KHÔNG phụ thuộc so_luong.
-  // HN: Giá lẻ + Giá sỉ từ 300.
+  // HN: Giá lẻ + Giá sỉ khi từ 300 hộp và tổng giá lẻ trên 300.000đ.
   // HCM: Giá lẻ + Giá sỉ từ 300 + Giá sỉ từ 1000.
   const bangGia = [];
 
   if (diaChi === "HN") {
     bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
-    bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(box.gia_si) });
+    bangGia.push({ muc: "Giá sỉ (từ 300 cái và đơn trên 300.000đ)", gia: formatPrice(box.gia_si) });
   } else {
     bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
     bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(box.gia_si_300) });
@@ -338,10 +338,12 @@ function chonGiaTheoSoLuong(box, diaChi, soLuong) {
   const qty = Math.floor(Number(soLuong));
 
   if (diaChi === "HN") {
-    if (qty >= 300) {
+    const datGiaSi = qty >= 300 && qty * box.gia_le > 300000;
+
+    if (datGiaSi) {
       return {
         so_luong: formatPrice(qty),
-        muc_ap_dung: "Giá sỉ (từ 300 cái)",
+        muc_ap_dung: "Giá sỉ (từ 300 cái và đơn trên 300.000đ)",
         gia: formatPrice(box.gia_si)
       };
     }
