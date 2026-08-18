@@ -11,6 +11,10 @@ const formatPrice = (num) => {
 
 const NO_IMAGE_MESSAGE = "Size này chưa có ảnh minh hoạ.";
 const getHinhAnh = (box) => (box && box.hinh_anh ? box.hinh_anh : NO_IMAGE_MESSAGE);
+const THONG_TIN_LOP_HOP_CO_SAN = Object.freeze({
+  so_lop: 3,
+  ghi_chu_so_lop: "Hộp có sẵn mặc định 3 lớp; loại 5 lớp cần đặt sản xuất theo yêu cầu."
+});
 
 const LOAI_HOP_HOP_LE_HN = [
   "Đối khẩu", "Nắp chồm", "Nắp cài 2 đầu", "Hộp nắp chùm",
@@ -453,6 +457,7 @@ function getPrice(requestData) {
         dia_chi: diaChi,
         message: "Tìm thấy hộp có sẵn phù hợp.",
         data: {
+          ...THONG_TIN_LOP_HOP_CO_SAN,
           loai_hop: matched.loai_hop,
           kich_thuoc: `${D}x${R}x${C} cm`,
           so_luong_yeu_cau: coSoLuong ? formatPrice(so_luong) : null,
@@ -469,6 +474,7 @@ function getPrice(requestData) {
         const bangGia = taoBangGiaCoSan(matched, diaChi);
         const giaTheoSoLuong = chonGiaTheoSoLuong(matched, diaChi, so_luong);
         return {
+          ...THONG_TIN_LOP_HOP_CO_SAN,
           loai_hop: matched.loai_hop,
           kich_thuoc: `${D}x${R}x${C} cm`,
           so_luong_yeu_cau: coSoLuong ? formatPrice(so_luong) : null,
@@ -538,6 +544,7 @@ function getPrice(requestData) {
       bangGia.push({ muc: "Giá sỉ (từ 1000 cái)", gia: formatPrice(box.gia_si_1000) });
     }
     return {
+      ...THONG_TIN_LOP_HOP_CO_SAN,
       loai_hop: box.loai_hop,
       kich_thuoc: `${box.D}x${box.R}x${box.C} cm`,
       tieu_chi_tim_kiem: tieuChi,

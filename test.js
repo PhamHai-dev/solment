@@ -129,4 +129,20 @@ const giaHopPizzaHN = (soLuong) => getPrice({
 assert.strictEqual(giaHopPizzaHN(300).data.gia_theo_so_luong.gia, "1.000");
 assert.strictEqual(giaHopPizzaHN(301).data.gia_theo_so_luong.gia, "850");
 
+// ---- Hộp có sẵn mặc định 3 lớp; 5 lớp phải đặt sản xuất ----
+const hnCoSanLop = getPrice({ dia_chi: "HN", loai_hop: HOP_GIAY, dai: 31, rong: 19, cao: 11 });
+assert.strictEqual(hnCoSanLop.type, "pre_made");
+assert.strictEqual(hnCoSanLop.data.so_lop, 3);
+assert.ok(hnCoSanLop.data.ghi_chu_so_lop.includes("5 lớp cần đặt sản xuất"));
+
+const hcmCoSanLop = getPrice({ dia_chi: "HCM", loai_hop: DOI_KHAU, dai: 10, rong: 6, cao: 6 });
+assert.strictEqual(hcmCoSanLop.type, "pre_made");
+assert.strictEqual(hcmCoSanLop.data.so_lop, 3);
+assert.ok(hcmCoSanLop.data.ghi_chu_so_lop.includes("5 lớp cần đặt sản xuất"));
+
+const goiYCoSanLop = getPrice({ dia_chi: "HN", loai_hop: HOP_GIAY, dai: 30, rong: 19, cao: 11 });
+assert.strictEqual(goiYCoSanLop.type, "custom_with_suggestions");
+assert.strictEqual(goiYCoSanLop.data.size_gan_giong[0].so_lop, 3);
+assert.ok(goiYCoSanLop.data.size_gan_giong[0].ghi_chu_so_lop.includes("5 lớp cần đặt sản xuất"));
+
 console.log("All pricing tests passed.");
