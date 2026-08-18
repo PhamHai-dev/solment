@@ -65,7 +65,7 @@ const SIZE_CO_SAN_HCM = [
   { loai_hop: "Đối khẩu", D: 12, R: 10, C: 5, gia_le: 1000, gia_si_300: 800, gia_si_1000: 750, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/12x10x5.jpg" },
   { loai_hop: "Đối khẩu", D: 12, R: 7, C: 8, gia_le: 1000, gia_si_300: 800, gia_si_1000: 750, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/12x7x8.jpg" },
   { loai_hop: "Đối khẩu", D: 12, R: 12, C: 12, gia_le: 1400, gia_si_300: 1250, gia_si_1000: 1200, hinh_anh: null },
-  { loai_hop: "Đối khẩu", D: 15, R: 10, C: 10, gia_le: 1000, gia_si_300: 850, gia_si_1000: 800, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/15x10x10.jpg" },
+  { loai_hop: "Đối khẩu", D: 15, R: 10, C: 10, gia_le: 1100, gia_si_300: 1150, gia_si_1000: 1300, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/15x10x10.jpg" },
   { loai_hop: "Đối khẩu", D: 10, R: 5, C: 15, gia_le: 1300, gia_si_300: 1150, gia_si_1000: 1100, hinh_anh: null },
   { loai_hop: "Đối khẩu", D: 15, R: 12, C: 10, gia_le: 1400, gia_si_300: 1200, gia_si_1000: 1150, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/15x12x10.jpg" },
   { loai_hop: "Đối khẩu", D: 16, R: 6, C: 6, gia_le: 1000, gia_si_300: 750, gia_si_1000: 690, hinh_anh: null },
