@@ -459,6 +459,7 @@ function getPrice(requestData) {
         data: {
           ...THONG_TIN_LOP_HOP_CO_SAN,
           loai_hop: matched.loai_hop,
+          loai_song: matched.loai_song,
           kich_thuoc: `${D}x${R}x${C} cm`,
           so_luong_yeu_cau: coSoLuong ? formatPrice(so_luong) : null,
           ...(giaTheoSoLuong ? { gia_theo_so_luong: giaTheoSoLuong } : {}),
@@ -476,6 +477,7 @@ function getPrice(requestData) {
         return {
           ...THONG_TIN_LOP_HOP_CO_SAN,
           loai_hop: matched.loai_hop,
+          loai_song: matched.loai_song,
           kich_thuoc: `${D}x${R}x${C} cm`,
           so_luong_yeu_cau: coSoLuong ? formatPrice(so_luong) : null,
           ...(giaTheoSoLuong ? { gia_theo_so_luong: giaTheoSoLuong } : {}),
@@ -546,6 +548,7 @@ function getPrice(requestData) {
     return {
       ...THONG_TIN_LOP_HOP_CO_SAN,
       loai_hop: box.loai_hop,
+      loai_song: box.loai_song,
       kich_thuoc: `${box.D}x${box.R}x${box.C} cm`,
       tieu_chi_tim_kiem: tieuChi,
       bang_gia: bangGia,

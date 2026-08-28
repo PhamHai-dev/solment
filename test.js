@@ -129,20 +129,61 @@ const giaHopPizzaHN = (soLuong) => getPrice({
 assert.strictEqual(giaHopPizzaHN(300).data.gia_theo_so_luong.gia, "1.000");
 assert.strictEqual(giaHopPizzaHN(301).data.gia_theo_so_luong.gia, "850");
 
-// ---- Hộp có sẵn mặc định 3 lớp; 5 lớp phải đặt sản xuất ----
+// ---- Hộp có sẵn mặc định 3 lớp; 5 lớp phải đặt sản xuất; trả đúng loại sóng ----
 const hnCoSanLop = getPrice({ dia_chi: "HN", loai_hop: HOP_GIAY, dai: 31, rong: 19, cao: 11 });
 assert.strictEqual(hnCoSanLop.type, "pre_made");
 assert.strictEqual(hnCoSanLop.data.so_lop, 3);
+assert.strictEqual(hnCoSanLop.data.loai_song, "E");
 assert.ok(hnCoSanLop.data.ghi_chu_so_lop.includes("5 lớp cần đặt sản xuất"));
 
 const hcmCoSanLop = getPrice({ dia_chi: "HCM", loai_hop: DOI_KHAU, dai: 10, rong: 6, cao: 6 });
 assert.strictEqual(hcmCoSanLop.type, "pre_made");
 assert.strictEqual(hcmCoSanLop.data.so_lop, 3);
+assert.strictEqual(hcmCoSanLop.data.loai_song, "E");
 assert.ok(hcmCoSanLop.data.ghi_chu_so_lop.includes("5 lớp cần đặt sản xuất"));
 
 const goiYCoSanLop = getPrice({ dia_chi: "HN", loai_hop: HOP_GIAY, dai: 30, rong: 19, cao: 11 });
 assert.strictEqual(goiYCoSanLop.type, "custom_with_suggestions");
 assert.strictEqual(goiYCoSanLop.data.size_gan_giong[0].so_lop, 3);
+assert.strictEqual(goiYCoSanLop.data.size_gan_giong[0].loai_song, "E");
 assert.ok(goiYCoSanLop.data.size_gan_giong[0].ghi_chu_so_lop.includes("5 lớp cần đặt sản xuất"));
+
+// ---- 27 ảnh chuẩn được đồng bộ vào 40 SKU HN/HCM; toàn bộ 93 SKU có ảnh ----
+const { SIZE_CO_SAN_HN, SIZE_CO_SAN_HCM } = require("./utils/data");
+const tenAnhMoi = new Set([
+  "10x3x18.jpg", "10x5x15.jpg", "12x8x4.jpg", "12x8x12.jpg", "12x12x12.jpg", "14x12x4.jpg",
+  "15x10x5.jpg", "15x15x5.jpg", "15x15x10.jpg", "16x6x6.jpg", "16x12x6.jpg",
+  "10x4x18.jpg", "18x12x4.jpg", "20x15x6.jpg", "25x15x5.jpg", "25x15x20.jpg",
+  "25x17x3.jpg", "25x20x6.jpg", "30x15x10.jpg", "30x20x5.jpg", "30x20x7.jpg",
+  "30x20x10.jpg", "30x20x15.jpg", "30x25x6.jpg", "31x19x11.jpg", "35x25x7.jpg",
+  "35x25x15.jpg"
+]);
+const tatCaSku = [...SIZE_CO_SAN_HN, ...SIZE_CO_SAN_HCM];
+const skuCoAnhMoi = tatCaSku.filter((hop) => tenAnhMoi.has(hop.hinh_anh.split("/").pop()));
+assert.strictEqual(tenAnhMoi.size, 27);
+assert.strictEqual(skuCoAnhMoi.length, 40);
+assert.ok(tatCaSku.every((hop) => hop.hinh_anh.startsWith("https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/")));
+assert.ok(skuCoAnhMoi.every((hop) => /\/[^\s()]+\.jpg$/.test(hop.hinh_anh)));
+assert.ok(skuCoAnhMoi.every((hop) => !hop.hinh_anh.includes("-01")));
+
+// ---- Loại sóng: đủ 93 SKU, đúng phân bố và khác biệt giữa hai khu vực ----
+const demLoaiSong = (items) => items.reduce((result, hop) => {
+  result[hop.loai_song] = (result[hop.loai_song] || 0) + 1;
+  return result;
+}, {});
+assert.strictEqual(SIZE_CO_SAN_HN.length, 53);
+assert.strictEqual(SIZE_CO_SAN_HCM.length, 40);
+assert.ok(tatCaSku.every((hop) => ["E", "B", "C"].includes(hop.loai_song)));
+assert.deepStrictEqual(demLoaiSong(SIZE_CO_SAN_HN), { E: 36, B: 12, C: 5 });
+assert.deepStrictEqual(demLoaiSong(SIZE_CO_SAN_HCM), { E: 14, B: 24, C: 2 });
+const timSku = (items, loaiHop, D, R, C) => items.find((hop) =>
+  hop.loai_hop === loaiHop && hop.D === D && hop.R === R && hop.C === C
+);
+assert.strictEqual(timSku(SIZE_CO_SAN_HN, DOI_KHAU, 12, 12, 12).loai_song, "E");
+assert.strictEqual(timSku(SIZE_CO_SAN_HCM, DOI_KHAU, 12, 12, 12).loai_song, "B");
+assert.strictEqual(timSku(SIZE_CO_SAN_HN, DOI_KHAU, 15, 10, 10).loai_song, "E");
+assert.strictEqual(timSku(SIZE_CO_SAN_HCM, DOI_KHAU, 15, 10, 10).loai_song, "B");
+assert.strictEqual(timSku(SIZE_CO_SAN_HCM, DOI_KHAU, 40, 30, 20).loai_song, "C");
+assert.strictEqual(timSku(SIZE_CO_SAN_HCM, "Nắp gài pizza", 12, 8, 4).loai_song, "E");
 
 console.log("All pricing tests passed.");
