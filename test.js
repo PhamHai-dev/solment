@@ -186,4 +186,117 @@ assert.strictEqual(timSku(SIZE_CO_SAN_HCM, DOI_KHAU, 15, 10, 10).loai_song, "B")
 assert.strictEqual(timSku(SIZE_CO_SAN_HCM, DOI_KHAU, 40, 30, 20).loai_song, "C");
 assert.strictEqual(timSku(SIZE_CO_SAN_HCM, "Nắp gài pizza", 12, 8, 4).loai_song, "E");
 
+// ---- Đa thương hiệu: routing, dataset hộp và giá sản xuất dùng chung ----
+const { HT_CARTON_ID } = require("./utils/brand-config");
+const { OTHER_BRAND_DATA } = require("./utils/other-brand-data");
+const OTHER_BRAND_ID = "987654321";
+
+const legacyDefaultBrand = getPrice({ dia_chi: "HN", loai_hop: HOP_GIAY, dai: 31, rong: 19, cao: 11 });
+assert.strictEqual(legacyDefaultBrand.thuong_hieu_id, HT_CARTON_ID);
+assert.strictEqual(legacyDefaultBrand.cum_thuong_hieu, "HT_CARTON");
+assert.strictEqual(legacyDefaultBrand.thuong_hieu_mac_dinh, true);
+assert.strictEqual(getPrice({ thuong_hieu_id: "", dia_chi: "HN", dai: 10, rong: 10, cao: 10 }).success, false);
+
+assert.strictEqual(OTHER_BRAND_DATA.HN.boxes.length, 53);
+assert.strictEqual(OTHER_BRAND_DATA.HCM.boxes.length, 40);
+assert.strictEqual(OTHER_BRAND_DATA.HN.accessories.tapes.length, 3);
+assert.strictEqual(OTHER_BRAND_DATA.HCM.accessories.tapes.length, 3);
+assert.strictEqual(OTHER_BRAND_DATA.HN.accessories.bubble_wrap.length, 8);
+assert.strictEqual(OTHER_BRAND_DATA.HCM.accessories.bubble_wrap.length, 5);
+assert.strictEqual(OTHER_BRAND_DATA.HN.accessories.pe_shipping_bags.length, 8);
+assert.strictEqual(OTHER_BRAND_DATA.HCM.accessories.pe_shipping_bags.length, 8);
+
+const correctedHnBox = getPrice({
+  thuong_hieu_id: OTHER_BRAND_ID, dia_chi: "HN", loai_hop: "Nắp gài pizza",
+  dai: 25, rong: 20, cao: 6, so_luong: 1
+});
+assert.strictEqual(correctedHnBox.type, "pre_made");
+assert.strictEqual(correctedHnBox.data.kich_thuoc, "25x20x6 cm");
+assert.strictEqual(correctedHnBox.data.gia_theo_so_luong.gia, "2.330");
+assert.strictEqual(correctedHnBox.data.bang_gia.length, 1);
+assert.ok(correctedHnBox.data.bang_gia[0].muc.includes("mọi số lượng"));
+assert.ok(!OTHER_BRAND_DATA.HN.boxes.some((box) => box.D === 26 && box.R === 20 && box.C === 5));
+
+const otherHcmBox = (quantity) => getPrice({
+  thuong_hieu_id: OTHER_BRAND_ID, dia_chi: "HCM", loai_hop: "Nắp gài pizza",
+  dai: 25, rong: 20, cao: 6, so_luong: quantity
+});
+assert.strictEqual(otherHcmBox(299).data.gia_theo_so_luong.gia, "2.700");
+assert.strictEqual(otherHcmBox(300).data.gia_theo_so_luong.gia, "2.600");
+assert.strictEqual(otherHcmBox(1000).data.gia_theo_so_luong.gia, "2.550");
+
+const customInput = { dia_chi: "HN", loai_hop: DOI_KHAU, dai: 20.1, rong: 10.1, cao: 10.1, so_luong: 2000 };
+const customHt = getPrice({ ...customInput, thuong_hieu_id: HT_CARTON_ID });
+const customOther = getPrice({ ...customInput, thuong_hieu_id: OTHER_BRAND_ID });
+assert.deepStrictEqual(customHt.data.size_yeu_cau, customOther.data.size_yeu_cau);
+const tamInput = { dia_chi: "HN", loai_san_pham: "Tấm carton", dai: 70, rong: 30, so_luong: 1000 };
+assert.deepStrictEqual(
+  getPrice({ ...tamInput, thuong_hieu_id: HT_CARTON_ID }).data,
+  getPrice({ ...tamInput, thuong_hieu_id: OTHER_BRAND_ID }).data
+);
+
+// ---- Ưu đãi HN chỉ tính tiền hộp: mốc 2/5/9/12 triệu và upsell từ 90% ----
+const discountedHnBox = (subtotal) => getPrice({
+  thuong_hieu_id: OTHER_BRAND_ID, dia_chi: "HN", loai_hop: HOP_GIAY,
+  dai: 31, rong: 19, cao: 11, so_luong: 1,
+  tong_tien_hop_truoc_chiet_khau: subtotal
+}).data.uu_dai_don_hop;
+assert.strictEqual(discountedHnBox(1999999).ty_le_chiet_khau, 0);
+assert.strictEqual(discountedHnBox(2000000).ty_le_chiet_khau, 4);
+assert.strictEqual(discountedHnBox(2000000).tien_chiet_khau, "80.000");
+assert.strictEqual(discountedHnBox(5000000).ty_le_chiet_khau, 6);
+assert.strictEqual(discountedHnBox(9000000).ty_le_chiet_khau, 7);
+assert.strictEqual(discountedHnBox(12000000).ty_le_chiet_khau, 8);
+assert.strictEqual(discountedHnBox(1800000).goi_y_upsell.can_mua_them_tien_hop, "200.000");
+assert.strictEqual(discountedHnBox(4900000).goi_y_upsell.can_mua_them_tien_hop, "100.000");
+assert.ok(discountedHnBox(2500000).ghi_chu_pham_vi.includes("không áp dụng cho băng dính"));
+assert.strictEqual(Object.prototype.hasOwnProperty.call(otherHcmBox(1000).data, "uu_dai_don_hop"), false);
+assert.strictEqual(Object.prototype.hasOwnProperty.call(hopGiay300.data, "uu_dai_don_hop"), false);
+
+// ---- Phụ kiện thương hiệu khác: catalog và các bậc giá ----
+const accessory = (data) => getPrice({ thuong_hieu_id: OTHER_BRAND_ID, ...data });
+const tapeHn = (quantity) => accessory({
+  dia_chi: "HN", loai_san_pham: "Băng dính", ten_san_pham: "Băng dính 0,5kg", so_luong: quantity
+});
+assert.strictEqual(tapeHn(5).data.gia_theo_so_luong.gia, "25.000");
+assert.strictEqual(tapeHn(6).data.gia_theo_so_luong.gia, "23.000");
+assert.strictEqual(accessory({ dia_chi: "HCM", loai_san_pham: "Băng dính" }).data.length, 3);
+
+const bubbleHn = (quantity) => accessory({
+  dia_chi: "HN", loai_san_pham: "Xốp chống sốc", kich_thuoc: "20cmx100m",
+  so_luong: quantity, don_vi_so_luong: "cay"
+});
+assert.strictEqual(bubbleHn(24).data.can_xac_nhan_gia, true);
+assert.strictEqual(bubbleHn(25).data.gia_theo_so_luong.gia, "256.000");
+assert.strictEqual(bubbleHn(39).data.gia_theo_so_luong.gia, "256.000");
+assert.strictEqual(bubbleHn(40).data.gia_theo_so_luong.gia, "236.000");
+const bubbleHcm = accessory({
+  dia_chi: "HCM", loai_san_pham: "Xốp chống sốc", kich_thuoc: "20cmx100m",
+  so_luong: 25, don_vi_so_luong: "cay"
+});
+assert.strictEqual(bubbleHcm.data.can_xac_nhan_gia, true);
+assert.strictEqual(bubbleHcm.data.bang_gia[1].gia, null);
+assert.strictEqual(accessory({
+  dia_chi: "HN", loai_san_pham: "Xốp chống sốc", kich_thuoc: "20cmx100m", so_luong: 2
+}).success, false);
+
+const bagPrice = (region, quantity, color) => accessory({
+  dia_chi: region, loai_san_pham: "Túi niêm phong", kich_thuoc: "15x25cm", mau: color, so_luong: quantity
+}).data.gia_theo_so_luong.gia;
+assert.strictEqual(bagPrice("HN", 24, "den"), "38.000");
+assert.strictEqual(bagPrice("HN", 25, "den"), "35.000");
+assert.strictEqual(bagPrice("HN", 25, "hồng"), "40.000");
+assert.strictEqual(bagPrice("HCM", 249, "den"), "42.000");
+assert.strictEqual(bagPrice("HCM", 250, "den"), "40.000");
+assert.strictEqual(bagPrice("HCM", 250, "xanh"), "46.000");
+assert.strictEqual(accessory({ dia_chi: "HN", loai_san_pham: "Túi niêm phong" }).data.length, 8);
+assert.strictEqual(Object.prototype.hasOwnProperty.call(tapeHn(6).data, "uu_dai_don_hop"), false);
+
+const htAccessory = getPrice({
+  thuong_hieu_id: HT_CARTON_ID, dia_chi: "HN", loai_san_pham: "Băng dính"
+});
+assert.strictEqual(htAccessory.success, false);
+assert.strictEqual(htAccessory.missing_info, true);
+assert.strictEqual(htAccessory.type, "accessory_data_unavailable");
+
 console.log("All pricing tests passed.");

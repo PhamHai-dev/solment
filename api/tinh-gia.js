@@ -1,4 +1,6 @@
 const { getPrice } = require("../utils/pricing-rules");
+const { isAccessoryProduct } = require("../utils/accessory-pricing");
+const { resolveBrand } = require("../utils/brand-config");
 
 module.exports = async (req, res) => {
   // CORS setup if n8n calls from a browser or different domain
@@ -22,10 +24,15 @@ module.exports = async (req, res) => {
   try {
     // Cho phép gọi bằng cả GET (query params) và POST (JSON body)
     const data = req.method === "POST" ? req.body : req.query;
+    const brandValidation = resolveBrand(data.thuong_hieu_id);
+    if (!brandValidation.success) {
+      return res.status(400).json(brandValidation);
+    }
 
-    // Tấm carton dùng dai/rong/so_luong, không cần cao - bỏ qua check "cao"
-    // bắt buộc khi loai_san_pham là Tấm carton.
+    // Tấm carton dùng dai/rong/so_luong, không cần cao.
+    // Phụ kiện dùng field nhận diện riêng, không cần dai/rong/cao.
     const isTamCarton = data.loai_san_pham === "Tấm carton";
+    const isAccessory = isAccessoryProduct(data.loai_san_pham);
 
     // ---- Chỉ chấp nhận đúng 2 khu vực; không âm thầm coi địa chỉ lạ là HN ----
     if (data.dia_chi !== "HN" && data.dia_chi !== "HCM") {
@@ -36,9 +43,11 @@ module.exports = async (req, res) => {
     }
 
     const missingParams = [];
-    if (data.dai === undefined || data.dai === null || data.dai === "") missingParams.push("dai");
-    if (data.rong === undefined || data.rong === null || data.rong === "") missingParams.push("rong");
-    if (!isTamCarton && (data.cao === undefined || data.cao === null || data.cao === "")) missingParams.push("cao");
+    if (!isAccessory) {
+      if (data.dai === undefined || data.dai === null || data.dai === "") missingParams.push("dai");
+      if (data.rong === undefined || data.rong === null || data.rong === "") missingParams.push("rong");
+      if (!isTamCarton && (data.cao === undefined || data.cao === null || data.cao === "")) missingParams.push("cao");
+    }
     if (isTamCarton && (data.so_luong === undefined || data.so_luong === null || data.so_luong === "")) {
       missingParams.push("so_luong");
     }
@@ -58,7 +67,9 @@ module.exports = async (req, res) => {
     // để vẫn tra được hàng có sẵn. Số âm hoặc giá trị không phải số vẫn bị chặn.
     const errors = [];
     const parsed = {};
-    const numericParams = [
+    const numericParams = isAccessory ? [
+      { raw: data.so_luong, label: "so_luong", required: false }
+    ] : [
       { raw: data.dai, label: "dai", required: true },
       { raw: data.rong, label: "rong", required: true },
       { raw: isTamCarton ? undefined : data.cao, label: "cao", required: !isTamCarton },
@@ -72,6 +83,15 @@ module.exports = async (req, res) => {
       }
 
       const num = Number(p.raw);
+
+      if (p.label === "so_luong" && isAccessory) {
+        if (!Number.isInteger(num) || num <= 0) {
+          errors.push("so_luong phụ kiện phải là số nguyên dương");
+        } else {
+          parsed.so_luong = num;
+        }
+        continue;
+      }
 
       if (p.label === "so_luong" && !isTamCarton) {
         // Hộp: 0 = chưa cung cấp số lượng, không phải lỗi.
@@ -88,6 +108,17 @@ module.exports = async (req, res) => {
         errors.push(`${p.label} phải là số dương hợp lệ`);
       } else {
         parsed[p.label] = p.label === "so_luong" ? Math.floor(num) : num;
+      }
+    }
+
+    if (data.tong_tien_hop_truoc_chiet_khau !== undefined &&
+        data.tong_tien_hop_truoc_chiet_khau !== null &&
+        data.tong_tien_hop_truoc_chiet_khau !== "") {
+      const subtotal = Number(data.tong_tien_hop_truoc_chiet_khau);
+      if (!Number.isFinite(subtotal) || subtotal < 0) {
+        errors.push("tong_tien_hop_truoc_chiet_khau phải là số không âm hợp lệ");
+      } else {
+        parsed.tong_tien_hop_truoc_chiet_khau = Math.round(subtotal);
       }
     }
 
@@ -110,10 +141,15 @@ module.exports = async (req, res) => {
     // Convert string booleans to real booleans
     const requestData = {
       ...data,
-      dai: parsed.dai,
-      rong: parsed.rong,
-      ...(isTamCarton ? {} : { cao: parsed.cao }),
+      ...(isAccessory ? {} : {
+        dai: parsed.dai,
+        rong: parsed.rong,
+        ...(isTamCarton ? {} : { cao: parsed.cao })
+      }),
       so_luong: parsed.so_luong !== undefined ? parsed.so_luong : null,
+      ...(parsed.tong_tien_hop_truoc_chiet_khau !== undefined
+        ? { tong_tien_hop_truoc_chiet_khau: parsed.tong_tien_hop_truoc_chiet_khau }
+        : {}),
       in_an: coIn,
       ban_in_phuc_tap: data.ban_in_phuc_tap === true || data.ban_in_phuc_tap === "true" || data.ban_in_phuc_tap === "1",
       so_mau_in: parsed.so_mau_in || 1

@@ -1,6 +1,10 @@
 const { SIZE_CO_SAN_HN, SIZE_CO_SAN_HCM } = require("./data");
 const { tinhMayBeHN, tinhMayBoHN, tinhGiaHCM } = require("./formulas");
 const { tinhGiaTam } = require("./tam-carton");
+const { BRAND_CLUSTERS, resolveBrand, brandMetadata } = require("./brand-config");
+const { getOtherBrandBoxes, getOtherBrandAccessories } = require("./other-brand-data");
+const { calculateAvailableBoxDiscount } = require("./available-box-discount");
+const { isAccessoryProduct, priceAccessory } = require("./accessory-pricing");
 
 const formatPrice = (num) => {
   if (num === null || num === undefined) return num;
@@ -317,13 +321,15 @@ function coSoLuongHopLe(soLuong) {
   return Number.isFinite(num) && num > 0;
 }
 
-function taoBangGiaCoSan(box, diaChi) {
+function taoBangGiaCoSan(box, diaChi, brandCluster = BRAND_CLUSTERS.HT_CARTON) {
   // bang_gia luôn là bảng tham khảo đầy đủ của SKU, KHÔNG phụ thuộc so_luong.
-  // HN: Giá lẻ + Giá sỉ khi từ 300 hộp và tổng giá lẻ trên 300.000đ.
+  // Other HN: một giá áp dụng mọi số lượng. HT HN giữ chính sách giá sỉ cũ.
   // HCM: Giá lẻ + Giá sỉ từ 300 + Giá sỉ từ 1000.
   const bangGia = [];
 
-  if (diaChi === "HN") {
+  if (diaChi === "HN" && brandCluster === BRAND_CLUSTERS.OTHER_BRANDS) {
+    bangGia.push({ muc: "Giá áp dụng mọi số lượng", gia: formatPrice(box.gia_le) });
+  } else if (diaChi === "HN") {
     bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
     bangGia.push({ muc: "Giá sỉ (từ 300 cái và đơn trên 300.000đ)", gia: formatPrice(box.gia_si) });
   } else {
@@ -335,11 +341,19 @@ function taoBangGiaCoSan(box, diaChi) {
   return bangGia;
 }
 
-function chonGiaTheoSoLuong(box, diaChi, soLuong) {
+function chonGiaTheoSoLuong(box, diaChi, soLuong, brandCluster = BRAND_CLUSTERS.HT_CARTON) {
   // Chỉ tạo field giá áp dụng khi khách có so_luong > 0.
   if (!coSoLuongHopLe(soLuong)) return null;
 
   const qty = Math.floor(Number(soLuong));
+
+  if (diaChi === "HN" && brandCluster === BRAND_CLUSTERS.OTHER_BRANDS) {
+    return {
+      so_luong: formatPrice(qty),
+      muc_ap_dung: "Giá áp dụng mọi số lượng",
+      gia: formatPrice(box.gia_le)
+    };
+  }
 
   if (diaChi === "HN") {
     const datGiaSi = qty >= 300 && qty * box.gia_le > 300000;
@@ -382,16 +396,63 @@ function chonGiaTheoSoLuong(box, diaChi, soLuong) {
   };
 }
 
+function formatAvailableBoxDiscount(discount) {
+  if (!discount) return null;
+  const formatted = {
+    tong_tien_hop_truoc_chiet_khau: formatPrice(discount.tong_tien_hop_truoc_chiet_khau),
+    ty_le_chiet_khau: discount.ty_le_chiet_khau,
+    tien_chiet_khau: formatPrice(discount.tien_chiet_khau),
+    tong_tien_hop_sau_chiet_khau: formatPrice(discount.tong_tien_hop_sau_chiet_khau),
+    tu_dong_ap_dung: discount.tu_dong_ap_dung,
+    ghi_chu_pham_vi: discount.ghi_chu_pham_vi
+  };
+  if (discount.goi_y_upsell) {
+    formatted.goi_y_upsell = {
+      ...discount.goi_y_upsell,
+      moc_tiep_theo: formatPrice(discount.goi_y_upsell.moc_tiep_theo),
+      can_mua_them_tien_hop: formatPrice(discount.goi_y_upsell.can_mua_them_tien_hop),
+      thong_bao: `Gợi ý lấy thêm ${formatPrice(discount.goi_y_upsell.can_mua_them_tien_hop)}đ tiền hộp để đạt mốc ${formatPrice(discount.goi_y_upsell.moc_tiep_theo)}đ và được chiết khấu ${discount.goi_y_upsell.ty_le_chiet_khau}%.`
+    };
+  }
+  return formatted;
+}
+
+function getAvailableBoxDiscount(requestData, box, giaTheoSoLuong, brandCluster, diaChi) {
+  if (brandCluster !== BRAND_CLUSTERS.OTHER_BRANDS || diaChi !== "HN") return null;
+  let subtotal = requestData.tong_tien_hop_truoc_chiet_khau;
+  if (subtotal === undefined || subtotal === null || subtotal === "") {
+    if (!coSoLuongHopLe(requestData.so_luong) || !giaTheoSoLuong) return null;
+    subtotal = Math.floor(Number(requestData.so_luong)) * box.gia_le;
+  }
+  return formatAvailableBoxDiscount(calculateAvailableBoxDiscount(Number(subtotal)));
+}
+
 function getPrice(requestData) {
   const { dia_chi, loai_hop, dai, rong, cao, so_luong, in_an, so_mau_in, ban_in_phuc_tap, loai_san_pham } = requestData;
+  const brandContext = resolveBrand(requestData.thuong_hieu_id);
+  if (!brandContext.success) return brandContext;
+  const withBrand = (result) => ({ ...result, ...brandMetadata(brandContext) });
+  const brandCluster = brandContext.cum_thuong_hieu;
 
   if (dia_chi !== "HN" && dia_chi !== "HCM") {
-    return { success: false, message: "dia_chi không hợp lệ, phải là HN hoặc HCM." };
+    return withBrand({ success: false, message: "dia_chi không hợp lệ, phải là HN hoặc HCM." });
   }
   const diaChi = dia_chi;
 
+  if (isAccessoryProduct(loai_san_pham)) {
+    if (brandCluster === BRAND_CLUSTERS.HT_CARTON) {
+      return withBrand({
+        success: false,
+        type: "accessory_data_unavailable",
+        missing_info: true,
+        message: "Chưa có bảng giá phụ kiện cho HT Carton; không sử dụng giá của cụm thương hiệu khác."
+      });
+    }
+    return withBrand(priceAccessory(requestData, getOtherBrandAccessories(diaChi)));
+  }
+
   if (loai_san_pham === "Tấm carton") {
-    return tinhGiaTam(diaChi, requestData, formatPrice);
+    return withBrand(tinhGiaTam(diaChi, requestData, formatPrice));
   }
 
   const D = parseFloat(dai);
@@ -399,7 +460,7 @@ function getPrice(requestData) {
   const C = parseFloat(cao);
 
   if ([D, R, C].some((n) => !Number.isFinite(n) || n <= 0)) {
-    return { success: false, message: "dai/rong/cao phải là số dương hợp lệ." };
+    return withBrand({ success: false, message: "dai/rong/cao phải là số dương hợp lệ." });
   }
   // Với HỘP, so_luong là optional:
   // - null/undefined/""/0: coi như chưa cung cấp số lượng, vẫn cho phép tra hàng có sẵn.
@@ -407,28 +468,31 @@ function getPrice(requestData) {
   if (so_luong !== undefined && so_luong !== null && so_luong !== "") {
     const slNum = Number(so_luong);
     if (!Number.isFinite(slNum) || slNum < 0) {
-      return { success: false, message: "so_luong phải là số không âm hợp lệ." };
+      return withBrand({ success: false, message: "so_luong phải là số không âm hợp lệ." });
     }
   }
   if (in_an === true || in_an === "true" || in_an === "1") {
     const mau = (so_mau_in === undefined || so_mau_in === null || so_mau_in === "") ? 1 : Number(so_mau_in);
     if (!Number.isInteger(mau) || mau < 1) {
-      return { success: false, message: "so_mau_in phải là số nguyên dương." };
+      return withBrand({ success: false, message: "so_mau_in phải là số nguyên dương." });
     }
   }
 
   if (loai_hop && String(loai_hop).toLowerCase().indexOf("âm dương") !== -1) {
-    return { success: false, message: "Xưởng không nhận làm hộp âm dương." };
+    return withBrand({ success: false, message: "Xưởng không nhận làm hộp âm dương." });
   }
 
   if (loai_hop) {
     const whitelist = diaChi === "HCM" ? LOAI_HOP_HOP_LE_HCM : LOAI_HOP_HOP_LE_HN;
     if (whitelist.indexOf(loai_hop) === -1) {
-      return { success: false, message: `Loại hộp không hợp lệ, phải là một trong: ${whitelist.join(", ")}` };
+      return withBrand({ success: false, message: `Loại hộp không hợp lệ, phải là một trong: ${whitelist.join(", ")}` });
     }
   }
 
-  const arrCoSan = diaChi === "HCM" ? SIZE_CO_SAN_HCM : SIZE_CO_SAN_HN;
+  const htArrCoSan = diaChi === "HCM" ? SIZE_CO_SAN_HCM : SIZE_CO_SAN_HN;
+  const arrCoSan = brandCluster === BRAND_CLUSTERS.OTHER_BRANDS
+    ? getOtherBrandBoxes(diaChi)
+    : htArrCoSan;
   let matches = [];
   const reqSorted = [D, R, C].sort((a, b) => b - a);
 
@@ -449,9 +513,10 @@ function getPrice(requestData) {
 
       // bang_gia luôn trả đủ Giá lẻ + Giá sỉ để làm thông tin tham khảo.
       // gia_theo_so_luong chỉ xuất hiện khi so_luong > 0.
-      const bangGia = taoBangGiaCoSan(matched, diaChi);
-      const giaTheoSoLuong = chonGiaTheoSoLuong(matched, diaChi, so_luong);
-      return {
+      const bangGia = taoBangGiaCoSan(matched, diaChi, brandCluster);
+      const giaTheoSoLuong = chonGiaTheoSoLuong(matched, diaChi, so_luong, brandCluster);
+      const uuDaiDonHop = getAvailableBoxDiscount(requestData, matched, giaTheoSoLuong, brandCluster, diaChi);
+      return withBrand({
         success: true,
         type: "pre_made",
         dia_chi: diaChi,
@@ -464,16 +529,18 @@ function getPrice(requestData) {
           so_luong_yeu_cau: coSoLuong ? formatPrice(so_luong) : null,
           ...(giaTheoSoLuong ? { gia_theo_so_luong: giaTheoSoLuong } : {}),
           bang_gia: bangGia,
+          ...(uuDaiDonHop ? { uu_dai_don_hop: uuDaiDonHop } : {}),
           ghi_chu: "Hộp có sẵn, mua ít cũng bán.",
           Hinh_anh: getHinhAnh(matched),
           hinh_anh: getHinhAnh(matched)
         }
-      };
+      });
     } else {
       const coSoLuong = coSoLuongHopLe(so_luong);
       let dataArr = matches.map((matched) => {
-        const bangGia = taoBangGiaCoSan(matched, diaChi);
-        const giaTheoSoLuong = chonGiaTheoSoLuong(matched, diaChi, so_luong);
+        const bangGia = taoBangGiaCoSan(matched, diaChi, brandCluster);
+        const giaTheoSoLuong = chonGiaTheoSoLuong(matched, diaChi, so_luong, brandCluster);
+        const uuDaiDonHop = getAvailableBoxDiscount(requestData, matched, giaTheoSoLuong, brandCluster, diaChi);
         return {
           ...THONG_TIN_LOP_HOP_CO_SAN,
           loai_hop: matched.loai_hop,
@@ -482,30 +549,33 @@ function getPrice(requestData) {
           so_luong_yeu_cau: coSoLuong ? formatPrice(so_luong) : null,
           ...(giaTheoSoLuong ? { gia_theo_so_luong: giaTheoSoLuong } : {}),
           bang_gia: bangGia,
+          ...(uuDaiDonHop ? { uu_dai_don_hop: uuDaiDonHop } : {}),
           ghi_chu: "",
           Hinh_anh: getHinhAnh(matched),
           hinh_anh: getHinhAnh(matched)
         };
       });
-      return {
+      return withBrand({
         success: true,
         type: "multiple_pre_made",
         dia_chi: diaChi,
         message: "Tìm thấy nhiều loại hộp có cùng kích thước. Vui lòng hỏi khách hàng chọn loại hộp nào.",
         data: dataArr
-      };
+      });
     }
   }
 
   let giaPhoiCoSan = null;
   if (matches.length > 0 && in_an) {
-    giaPhoiCoSan = matches[0].gia_si || matches[0].gia_si_300;
+    const htMatch = htArrCoSan.find((box) => box.D === D && box.R === R && box.C === C &&
+      (!loai_hop || box.loai_hop.toLowerCase() === loai_hop.toLowerCase()));
+    giaPhoiCoSan = htMatch ? (htMatch.gia_si || htMatch.gia_si_300) : null;
   }
 
   const customData = calculateCustomSize(diaChi, loai_hop, D, R, C, so_luong, in_an, so_mau_in, ban_in_phuc_tap, "", giaPhoiCoSan);
 
   if (matches.length > 0 && in_an) {
-    return { success: true, type: "custom", dia_chi: diaChi, message: "Báo giá sản xuất in ấn trên form hộp có sẵn.", data: customData };
+    return withBrand({ success: true, type: "custom", dia_chi: diaChi, message: "Báo giá sản xuất in ấn trên form hộp có sẵn.", data: customData });
   }
 
   let bestEuclid = null;
@@ -536,15 +606,7 @@ function getPrice(requestData) {
   let size_gan_giong = [];
 
   const formatCoSan = (box, tieuChi) => {
-    let bangGia = [];
-    if (diaChi === "HN") {
-      bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
-      bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(box.gia_si) });
-    } else {
-      bangGia.push({ muc: "Giá lẻ", gia: formatPrice(box.gia_le) });
-      bangGia.push({ muc: "Giá sỉ (từ 300 cái)", gia: formatPrice(box.gia_si_300) });
-      bangGia.push({ muc: "Giá sỉ (từ 1000 cái)", gia: formatPrice(box.gia_si_1000) });
-    }
+    let bangGia = taoBangGiaCoSan(box, diaChi, brandCluster);
     return {
       ...THONG_TIN_LOP_HOP_CO_SAN,
       loai_hop: box.loai_hop,
@@ -562,13 +624,13 @@ function getPrice(requestData) {
     size_gan_giong.push(formatCoSan(bestEuclid, "Gần nhất theo form dáng tổng thể (Euclidean)"));
   }
 
-  return {
+  return withBrand({
     success: true,
     type: "custom_with_suggestions",
     dia_chi: diaChi,
     message: "Không có size có sẵn khớp chính xác. Gợi ý size gần nhất và báo giá sản xuất size yêu cầu.",
     data: { size_gan_giong, size_yeu_cau: customData }
-  };
+  });
 }
 
 module.exports = { getPrice };
