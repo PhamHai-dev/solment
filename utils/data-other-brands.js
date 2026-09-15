@@ -662,9 +662,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "E",
     "ghi_chu_san_pham": "Phổ biến hàng nhỏ / mỹ phẩm",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/10x8x8.png",
-    "gia_le": 900,
-    "gia_si_300": 750,
-    "gia_si_1000": 700,
+    "gia_le": 1000,
+    "gia_si_300": 900,
+    "gia_si_1000": 800,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -675,9 +675,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "E",
     "ghi_chu_san_pham": "Quần áo nhỏ / phụ kiện",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/10x10x8.jpg",
-    "gia_le": 1000,
-    "gia_si_300": 760,
-    "gia_si_1000": 740,
+    "gia_le": 1100,
+    "gia_si_300": 900,
+    "gia_si_1000": 830,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -688,9 +688,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "E",
     "ghi_chu_san_pham": "Đa dụng - ship COD chuẩn",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/10x10x10.jpg",
-    "gia_le": 1000,
-    "gia_si_300": 900,
-    "gia_si_1000": 850,
+    "gia_le": 1150,
+    "gia_si_300": 1050,
+    "gia_si_1000": 950,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -702,8 +702,8 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "ghi_chu_san_pham": "Size bán chạy nhất",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/12x10x5.jpg",
     "gia_le": 1000,
-    "gia_si_300": 700,
-    "gia_si_1000": 680,
+    "gia_si_300": 850,
+    "gia_si_1000": 780,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -715,8 +715,8 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "ghi_chu_san_pham": "Hàng trung bình",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/12x7x8.jpg",
     "gia_le": 1000,
-    "gia_si_300": 800,
-    "gia_si_1000": 750,
+    "gia_si_300": 900,
+    "gia_si_1000": 800,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -727,9 +727,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Hàng lớn, giày / túi",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/12x12x12.jpg",
-    "gia_le": 1400,
-    "gia_si_300": 1250,
-    "gia_si_1000": 1200,
+    "gia_le": 1500,
+    "gia_si_300": 1400,
+    "gia_si_1000": 1300,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -740,9 +740,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "E",
     "ghi_chu_san_pham": "Mỹ phẩm combo nhỏ",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/15x10x10.jpg",
-    "gia_le": 1000,
-    "gia_si_300": 850,
-    "gia_si_1000": 800,
+    "gia_le": 1300,
+    "gia_si_300": 1200,
+    "gia_si_1000": 1100,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -753,9 +753,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Phụ kiện điện thoại: ốp lưng, cường lực",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/10x5x15.jpg",
-    "gia_le": 1300,
-    "gia_si_300": 1100,
-    "gia_si_1000": 1060,
+    "gia_le": 1000,
+    "gia_si_300": 900,
+    "gia_si_1000": 800,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -766,9 +766,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "phụ kiện",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/15x12x10.jpg",
-    "gia_le": 1400,
-    "gia_si_300": 1150,
-    "gia_si_1000": 1100,
+    "gia_le": 1550,
+    "gia_si_300": 1350,
+    "gia_si_1000": 1250,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -780,8 +780,8 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "ghi_chu_san_pham": "Phụ kiện thời trang, ví",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/16x6x6.jpg",
     "gia_le": 1000,
-    "gia_si_300": 700,
-    "gia_si_1000": 660,
+    "gia_si_300": 750,
+    "gia_si_1000": 690,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -792,9 +792,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Hộp chai tinh dầu, mỹ phẩm",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/16x12x6.jpg",
-    "gia_le": 1250,
-    "gia_si_300": 1100,
-    "gia_si_1000": 1060,
+    "gia_le": 1350,
+    "gia_si_300": 1200,
+    "gia_si_1000": 1100,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -805,9 +805,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Đồ gia dụng nhỏ",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/18x10x8.jpg",
-    "gia_le": 1250,
-    "gia_si_300": 1100,
-    "gia_si_1000": 1060,
+    "gia_le": 1350,
+    "gia_si_300": 1250,
+    "gia_si_1000": 1100,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -818,9 +818,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Hộp đựng nhiều sản phẩm nhỏ",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/18x12x12.jpg",
-    "gia_le": 1550,
-    "gia_si_300": 1450,
-    "gia_si_1000": 1400,
+    "gia_le": 1800,
+    "gia_si_300": 1700,
+    "gia_si_1000": 1600,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -845,8 +845,8 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "ghi_chu_san_pham": "Phụ kiện điện thoại: ốp lưng, cường lực",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/20x10x10.jpg",
     "gia_le": 1500,
-    "gia_si_300": 1300,
-    "gia_si_1000": 1200,
+    "gia_si_300": 1400,
+    "gia_si_1000": 1300,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -857,9 +857,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Mỹ phẩm combo, thực phẩm chức năng",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/20x12x8.jpg",
-    "gia_le": 1500,
-    "gia_si_300": 1250,
-    "gia_si_1000": 1200,
+    "gia_le": 1600,
+    "gia_si_300": 1450,
+    "gia_si_1000": 1400,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -883,9 +883,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Hộp quà tặng, đơn hàng tổng hợp",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/20x15x10.jpg",
-    "gia_le": 1850,
-    "gia_si_300": 1680,
-    "gia_si_1000": 1600,
+    "gia_le": 2000,
+    "gia_si_300": 1800,
+    "gia_si_1000": 1760,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -896,9 +896,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Sách, tài liệu, phụ kiện dẹt",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/20x15x15.jpg",
-    "gia_le": 2200,
-    "gia_si_300": 2000,
-    "gia_si_1000": 1900,
+    "gia_le": 2500,
+    "gia_si_300": 2250,
+    "gia_si_1000": 2200,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -909,9 +909,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Hộp quà, mỹ phẩm combo lớn",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/20x20x10.jpg",
-    "gia_le": 2400,
-    "gia_si_300": 2200,
-    "gia_si_1000": 2100,
+    "gia_le": 2800,
+    "gia_si_300": 2500,
+    "gia_si_1000": 2400,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -922,9 +922,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Đơn hàng tổng hợp nhiều sản phẩm",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/20x20x15.jpg",
-    "gia_le": 2600,
-    "gia_si_300": 2400,
-    "gia_si_1000": 2350,
+    "gia_le": 3000,
+    "gia_si_300": 2800,
+    "gia_si_1000": 2730,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -935,9 +935,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Chai lọ, mỹ phẩm kích thước dài",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/25x10x10.jpg",
-    "gia_le": 1550,
-    "gia_si_300": 1400,
-    "gia_si_1000": 1350,
+    "gia_le": 1800,
+    "gia_si_300": 1450,
+    "gia_si_1000": 1400,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -948,9 +948,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Đồ gia dụng nhỏ, mỹ phẩm combo",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/25x15x10.jpg",
-    "gia_le": 2000,
-    "gia_si_300": 1850,
-    "gia_si_1000": 1750,
+    "gia_le": 2200,
+    "gia_si_300": 2000,
+    "gia_si_1000": 1950,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -961,9 +961,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Đơn hàng tổng hợp nhiều sản phẩm",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/25x15x15.jpg",
-    "gia_le": 2400,
-    "gia_si_300": 2200,
-    "gia_si_1000": 2100,
+    "gia_le": 2600,
+    "gia_si_300": 2500,
+    "gia_si_1000": 2450,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -974,9 +974,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Hộp đựng thực phẩm, đồ gia dụng",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/25x20x10.jpg",
-    "gia_le": 2500,
-    "gia_si_300": 2350,
-    "gia_si_1000": 2300,
+    "gia_le": 2950,
+    "gia_si_300": 2800,
+    "gia_si_1000": 2700,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -987,9 +987,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Hàng hóa cồng kềnh vừa phải",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/25x15x20.jpg",
-    "gia_le": 2800,
-    "gia_si_300": 2680,
-    "gia_si_1000": 2600,
+    "gia_le": 3200,
+    "gia_si_300": 3000,
+    "gia_si_1000": 2900,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -1000,9 +1000,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Tranh cuộn, poster, sản phẩm dài",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/30x10x10.jpg",
-    "gia_le": 1800,
-    "gia_si_300": 1600,
-    "gia_si_1000": 1550,
+    "gia_le": 1900,
+    "gia_si_300": 1700,
+    "gia_si_1000": 1650,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -1013,9 +1013,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Giày dép, quần áo gấp gọn",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/30x15x10.jpg",
-    "gia_le": 2300,
-    "gia_si_300": 2150,
-    "gia_si_1000": 2050,
+    "gia_le": 2550,
+    "gia_si_300": 2400,
+    "gia_si_1000": 2320,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -1026,9 +1026,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Đơn hàng TMĐT phổ biến",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/30x20x10.jpg",
-    "gia_le": 2800,
-    "gia_si_300": 2650,
-    "gia_si_1000": 2550,
+    "gia_le": 3300,
+    "gia_si_300": 3100,
+    "gia_si_1000": 3000,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -1039,9 +1039,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Hộp thời trang, đồ gia dụng",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/30x20x15.jpg",
-    "gia_le": 3300,
-    "gia_si_300": 3100,
-    "gia_si_1000": 3050,
+    "gia_le": 3600,
+    "gia_si_300": 3450,
+    "gia_si_1000": 3350,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -1052,9 +1052,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "B",
     "ghi_chu_san_pham": "Hộp đựng giày phổ thông",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/35x25x15.jpg",
-    "gia_le": 4200,
-    "gia_si_300": 4100,
-    "gia_si_1000": 4000,
+    "gia_le": 5200,
+    "gia_si_300": 5000,
+    "gia_si_1000": 4900,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -1065,9 +1065,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "C",
     "ghi_chu_san_pham": "Chăn ga, quần áo số lượng lớn",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/40x30x20.jpg",
-    "gia_le": 6100,
-    "gia_si_300": 5900,
-    "gia_si_1000": 5800,
+    "gia_le": 6800,
+    "gia_si_300": 6500,
+    "gia_si_1000": 6300,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -1079,8 +1079,8 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "ghi_chu_san_pham": "Hàng cồng kềnh, chuyển kho, vận chuyển số lượng lớn",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/60x40x40.jpg",
     "gia_le": 16000,
-    "gia_si_300": 14300,
-    "gia_si_1000": 13800,
+    "gia_si_300": 14500,
+    "gia_si_1000": 14300,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -1104,9 +1104,9 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "E",
     "ghi_chu_san_pham": "mỹ phẩm, đồ handmade",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/18x12x4.jpg",
-    "gia_le": 1250,
-    "gia_si_300": 1150,
-    "gia_si_1000": 1100,
+    "gia_le": 1300,
+    "gia_si_300": 1250,
+    "gia_si_1000": 1150,
     "chinh_sach_gia": "tiered_by_quantity"
   },
   {
@@ -1143,7 +1143,7 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "loai_song": "E",
     "ghi_chu_san_pham": "Mỹ phẩm mini, tinh dầu, phụ kiện nhỏ",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/8.5x5x8.5.jpg",
-    "gia_le": 800,
+    "gia_le": 900,
     "gia_si_300": 800,
     "gia_si_1000": 760,
     "chinh_sach_gia": "tiered_by_quantity"
@@ -1157,8 +1157,8 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "ghi_chu_san_pham": "Son, bút, đũa, sản phẩm dạng dài",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX/10x3x18.jpg",
     "gia_le": 1100,
-    "gia_si_300": 800,
-    "gia_si_1000": 780,
+    "gia_si_300": 900,
+    "gia_si_1000": 850,
     "chinh_sach_gia": "tiered_by_quantity"
   }
 ];
@@ -1351,27 +1351,27 @@ const ACCESSORIES_HCM_OTHER_BRANDS = {
     {
       "name": "Băng dính 0,5kg",
       "spec": "1 cuộn",
-      "retail_vnd": 31000,
-      "wholesale_from_6_vnd": 29500
+      "retail_vnd": 26000,
+      "wholesale_from_6_vnd": 24000
     },
     {
       "name": "Băng dính 1kg",
       "spec": "1 cuộn",
-      "retail_vnd": 59000,
-      "wholesale_from_6_vnd": 57000
+      "retail_vnd": 54000,
+      "wholesale_from_6_vnd": 52000
     },
     {
       "name": "Băng dính in Hàng dễ vỡ 250g",
       "spec": "1 cuộn",
-      "retail_vnd": 15500,
-      "wholesale_from_6_vnd": 14500
+      "retail_vnd": 12500,
+      "wholesale_from_6_vnd": 11000
     }
   ],
   "bubble_wrap": [
     {
       "size": "20cmx100m",
       "unit": "1 cuộn",
-      "retail_vnd": 59000,
+      "retail_vnd": 53000,
       "wholesale_from_25_trees_vnd_per_tree": null,
       "wholesale_from_40_trees_vnd_per_tree": null,
       "rolls_per_tree": 7
@@ -1379,7 +1379,7 @@ const ACCESSORIES_HCM_OTHER_BRANDS = {
     {
       "size": "30cmx100m",
       "unit": "1 cuộn",
-      "retail_vnd": 85000,
+      "retail_vnd": 76500,
       "wholesale_from_25_trees_vnd_per_tree": null,
       "wholesale_from_40_trees_vnd_per_tree": null,
       "rolls_per_tree": 4
@@ -1387,7 +1387,7 @@ const ACCESSORIES_HCM_OTHER_BRANDS = {
     {
       "size": "60cmx100m",
       "unit": "1 cuộn",
-      "retail_vnd": 169000,
+      "retail_vnd": 152000,
       "wholesale_from_25_trees_vnd_per_tree": null,
       "wholesale_from_40_trees_vnd_per_tree": null,
       "rolls_per_tree": 2
@@ -1395,7 +1395,7 @@ const ACCESSORIES_HCM_OTHER_BRANDS = {
     {
       "size": "1.2mx100m",
       "unit": "1 cuộn",
-      "retail_vnd": 328000,
+      "retail_vnd": 295000,
       "wholesale_from_25_trees_vnd_per_tree": null,
       "wholesale_from_40_trees_vnd_per_tree": null,
       "rolls_per_tree": 1
@@ -1403,7 +1403,7 @@ const ACCESSORIES_HCM_OTHER_BRANDS = {
     {
       "size": "1.4mx100m",
       "unit": "1 cuộn",
-      "retail_vnd": 368000,
+      "retail_vnd": 330000,
       "wholesale_from_25_trees_vnd_per_tree": null,
       "wholesale_from_40_trees_vnd_per_tree": null,
       "rolls_per_tree": 1
@@ -1415,80 +1415,80 @@ const ACCESSORIES_HCM_OTHER_BRANDS = {
       "package": "1 bó",
       "pieces_per_package": "200-204",
       "retail_black_vnd": 42000,
-      "retail_color_vnd": 48000,
+      "retail_color_vnd": 45000,
       "wholesale_threshold_packages": 250,
       "wholesale_black_vnd": 40000,
-      "wholesale_color_vnd": 46000
+      "wholesale_color_vnd": 43000
     },
     {
       "size": "17x30cm",
       "package": "1 bó",
       "pieces_per_package": "145-150",
       "retail_black_vnd": 42000,
-      "retail_color_vnd": 48000,
+      "retail_color_vnd": 45000,
       "wholesale_threshold_packages": 250,
       "wholesale_black_vnd": 40000,
-      "wholesale_color_vnd": 46000
+      "wholesale_color_vnd": 43000
     },
     {
       "size": "20x30cm",
       "package": "1 bó",
       "pieces_per_package": "121-126",
       "retail_black_vnd": 42000,
-      "retail_color_vnd": 48000,
+      "retail_color_vnd": 45000,
       "wholesale_threshold_packages": 250,
       "wholesale_black_vnd": 40000,
-      "wholesale_color_vnd": 46000
+      "wholesale_color_vnd": 43000
     },
     {
       "size": "25x35cm",
       "package": "1 bó",
       "pieces_per_package": "80-86",
       "retail_black_vnd": 42000,
-      "retail_color_vnd": 48000,
+      "retail_color_vnd": 45000,
       "wholesale_threshold_packages": 250,
       "wholesale_black_vnd": 40000,
-      "wholesale_color_vnd": 46000
+      "wholesale_color_vnd": 43000
     },
     {
       "size": "28x42cm",
       "package": "1 bó",
       "pieces_per_package": "60-63",
       "retail_black_vnd": 42000,
-      "retail_color_vnd": 48000,
+      "retail_color_vnd": 45000,
       "wholesale_threshold_packages": 250,
       "wholesale_black_vnd": 40000,
-      "wholesale_color_vnd": 46000
+      "wholesale_color_vnd": 43000
     },
     {
       "size": "32x45cm",
       "package": "1 bó",
       "pieces_per_package": "48-52",
       "retail_black_vnd": 42000,
-      "retail_color_vnd": 48000,
+      "retail_color_vnd": 45000,
       "wholesale_threshold_packages": 250,
       "wholesale_black_vnd": 40000,
-      "wholesale_color_vnd": 46000
+      "wholesale_color_vnd": 43000
     },
     {
       "size": "38x52cm",
       "package": "1 bó",
       "pieces_per_package": "35-38",
       "retail_black_vnd": 42000,
-      "retail_color_vnd": 48000,
+      "retail_color_vnd": 45000,
       "wholesale_threshold_packages": 250,
       "wholesale_black_vnd": 40000,
-      "wholesale_color_vnd": 46000
+      "wholesale_color_vnd": 43000
     },
     {
       "size": "45x60cm",
       "package": "1 bó",
       "pieces_per_package": "25-28",
       "retail_black_vnd": 42000,
-      "retail_color_vnd": 48000,
+      "retail_color_vnd": 45000,
       "wholesale_threshold_packages": 250,
       "wholesale_black_vnd": 40000,
-      "wholesale_color_vnd": 46000
+      "wholesale_color_vnd": 43000
     }
   ],
   "common_notes": {
