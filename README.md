@@ -60,6 +60,13 @@ cả đơn.
 
 API gợi ý mua thêm khi tổng tiền hộp đạt ít nhất 90% mốc tiếp theo.
 
+#### Trường `ly_do_chiet_khau`
+
+Phản hồi chiết khấu luôn kèm trường `ly_do_chiet_khau` mô tả lý do bằng câu tự nhiên:
+
+- Có chiết khấu: `"Đơn hộp đạt mức ≥ 5.000.000đ nên được chiết khẩu 6%."`
+- Chưa đạt: `"Đơn hộp chưa đạt mức chiết khẩu tối thiểu 2.000.000đ."`
+
 ## Phụ kiện thương hiệu khác
 
 Ba giá trị `loai_san_pham` được hỗ trợ:

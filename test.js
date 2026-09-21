@@ -250,6 +250,10 @@ assert.strictEqual(discountedHnBox(12000000).ty_le_chiet_khau, 8);
 assert.strictEqual(discountedHnBox(1800000).goi_y_upsell.can_mua_them_tien_hop, "200.000");
 assert.strictEqual(discountedHnBox(4900000).goi_y_upsell.can_mua_them_tien_hop, "100.000");
 assert.ok(discountedHnBox(2500000).ghi_chu_pham_vi.includes("không áp dụng cho băng dính"));
+assert.strictEqual(discountedHnBox(2500000).ly_do_chiet_khau, "Đơn hộp đạt mức ≥ 2.000.000đ nên được chiết khấu 4%.");
+assert.strictEqual(discountedHnBox(5000000).ly_do_chiet_khau, "Đơn hộp đạt mức ≥ 5.000.000đ nên được chiết khấu 6%.");
+assert.strictEqual(discountedHnBox(12000000).ly_do_chiet_khau, "Đơn hộp đạt mức ≥ 12.000.000đ nên được chiết khấu 8%.");
+assert.strictEqual(discountedHnBox(1999999).ly_do_chiet_khau, "Đơn hộp chưa đạt mức chiết khấu tối thiểu 2.000.000đ.");
 assert.strictEqual(Object.prototype.hasOwnProperty.call(otherHcmBox(1000).data, "uu_dai_don_hop"), false);
 assert.strictEqual(Object.prototype.hasOwnProperty.call(hopGiay300.data, "uu_dai_don_hop"), false);
 

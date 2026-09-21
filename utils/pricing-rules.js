@@ -3,7 +3,7 @@ const { tinhMayBeHN, tinhMayBoHN, tinhGiaHCM } = require("./formulas");
 const { tinhGiaTam } = require("./tam-carton");
 const { BRAND_CLUSTERS, resolveBrand, brandMetadata } = require("./brand-config");
 const { getOtherBrandBoxes, getOtherBrandAccessories } = require("./other-brand-data");
-const { calculateAvailableBoxDiscount } = require("./available-box-discount");
+const { calculateAvailableBoxDiscount, DISCOUNT_TIERS } = require("./available-box-discount");
 const { isAccessoryProduct, priceAccessory } = require("./accessory-pricing");
 
 const formatPrice = (num) => {
@@ -404,6 +404,9 @@ function formatAvailableBoxDiscount(discount) {
     tien_chiet_khau: formatPrice(discount.tien_chiet_khau),
     tong_tien_hop_sau_chiet_khau: formatPrice(discount.tong_tien_hop_sau_chiet_khau),
     tu_dong_ap_dung: discount.tu_dong_ap_dung,
+    ly_do_chiet_khau: discount.applied_threshold !== null && discount.applied_threshold !== undefined
+      ? `Đơn hộp đạt mức ≥ ${formatPrice(discount.applied_threshold)}đ nên được chiết khấu ${discount.ty_le_chiet_khau}%.`
+      : `Đơn hộp chưa đạt mức chiết khấu tối thiểu ${formatPrice(DISCOUNT_TIERS[0].threshold)}đ.`,
     ghi_chu_pham_vi: discount.ghi_chu_pham_vi
   };
   if (discount.goi_y_upsell) {

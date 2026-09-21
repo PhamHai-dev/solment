@@ -24,7 +24,8 @@ function calculateAvailableBoxDiscount(boxSubtotal) {
     tien_chiet_khau: discountAmount,
     tong_tien_hop_sau_chiet_khau: subtotal - discountAmount,
     tu_dong_ap_dung: discountPercent > 0,
-    ghi_chu_pham_vi: DISCOUNT_SCOPE_NOTE
+    ghi_chu_pham_vi: DISCOUNT_SCOPE_NOTE,
+    applied_threshold: appliedTier ? appliedTier.threshold : null
   };
 
   const nextTier = DISCOUNT_TIERS.find((tier) => tier.threshold > subtotal);
