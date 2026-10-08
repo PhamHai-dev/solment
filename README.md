@@ -21,6 +21,33 @@ Mọi response sau routing có:
 }
 ```
 
+### Sub-brand routing (OTHER_BRANDS)
+
+Trong cụm `OTHER_BRANDS`, mỗi thương hiệu có bộ ảnh sản phẩm riêng. Chính sách giá, danh mục sản phẩm và phụ kiện dùng chung.
+
+| `thuong_hieu_id` | Sub-brand | Prefix ảnh |
+|------------------|-----------|------------|
+| `100298786195956` | VN_BOX (mặc định) | `.../public/VN_BOX/` |
+| `104878245974807` | Bao_bi_viet | `.../public/BBV/` |
+
+Response của OTHER_BRANDS có thêm:
+
+```json
+{
+  "sub_brand_id": "104878245974807",
+  "sub_brand_cluster": "BAO_BI_VIET",
+  "sub_brand_mac_dinh": false
+}
+```
+
+Brand lạ (không match ID nào) tự động fallback về VN_BOX với `sub_brand_mac_dinh: true`.
+
+#### Fallback ảnh HT
+
+Khi BBV chưa có ảnh của một SKU nào đó, API tự động dùng tạm ảnh từ kho chung `image_box` (của HT Carton) cho SKU đó. Danh sách ảnh BBV hiện có được khai báo trong `sub-brand-config.js`.
+
+Ví dụ: `14x12x4` không có trong bộ ảnh BBV → trả về `.../public/image_box/14x12x4.jpg` thay vì `.../public/BBV/14x12x4.jpg`.
+
 ## Hộp có sẵn
 
 ```json

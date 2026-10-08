@@ -661,7 +661,7 @@ const SIZE_CO_SAN_HCM_OTHER_BRANDS = [
     "C": 8,
     "loai_song": "E",
     "ghi_chu_san_pham": "Phổ biến hàng nhỏ / mỹ phẩm",
-    "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/10x8x8.png",
+    "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/10x8x8.jpg",
     "gia_le": 1000,
     "gia_si_300": 900,
     "gia_si_1000": 800,

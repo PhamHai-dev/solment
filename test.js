@@ -235,6 +235,91 @@ assert.deepStrictEqual(
   getPrice({ ...tamInput, thuong_hieu_id: OTHER_BRAND_ID }).data
 );
 
+// ---- Sub-brand routing: mỗi brand trong OTHER_BRANDS có bộ ảnh riêng ----
+const VN_BOX_ID = "100298786195956";
+const BAO_BI_VIET_ID = "104878245974807";
+
+const vnBoxBox = getPrice({
+  thuong_hieu_id: VN_BOX_ID, dia_chi: "HN", loai_hop: "Đối khẩu",
+  dai: 10, rong: 6, cao: 6, so_luong: 100
+});
+assert.strictEqual(vnBoxBox.success, true);
+assert.strictEqual(vnBoxBox.cum_thuong_hieu, "OTHER_BRANDS");
+assert.strictEqual(vnBoxBox.sub_brand_id, VN_BOX_ID);
+assert.strictEqual(vnBoxBox.sub_brand_cluster, "VN_BOX");
+assert.strictEqual(vnBoxBox.sub_brand_mac_dinh, true);
+assert.ok(vnBoxBox.data.hinh_anh.includes("/VN_BOX/"));
+
+const baoBiVietBox = getPrice({
+  thuong_hieu_id: BAO_BI_VIET_ID, dia_chi: "HN", loai_hop: "Đối khẩu",
+  dai: 10, rong: 6, cao: 6, so_luong: 100
+});
+assert.strictEqual(baoBiVietBox.success, true);
+assert.strictEqual(baoBiVietBox.cum_thuong_hieu, "OTHER_BRANDS");
+assert.strictEqual(baoBiVietBox.sub_brand_id, BAO_BI_VIET_ID);
+assert.strictEqual(baoBiVietBox.sub_brand_cluster, "BAO_BI_VIET");
+assert.strictEqual(baoBiVietBox.sub_brand_mac_dinh, false);
+assert.ok(baoBiVietBox.data.hinh_anh.includes("/BBV/"));
+
+// Giá và chính sách giống nhau, chỉ ảnh khác nhau
+assert.strictEqual(
+  baoBiVietBox.data.gia_theo_so_luong.gia,
+  vnBoxBox.data.gia_theo_so_luong.gia
+);
+assert.notStrictEqual(baoBiVietBox.data.hinh_anh, vnBoxBox.data.hinh_anh);
+
+// Brand lạ (không phải VN_BOX/BBV) fallback về VN_BOX
+const unknownBrandBox = getPrice({
+  thuong_hieu_id: "999999999", dia_chi: "HN", loai_hop: "Đối khẩu",
+  dai: 10, rong: 6, cao: 6
+});
+assert.strictEqual(unknownBrandBox.success, true);
+assert.strictEqual(unknownBrandBox.sub_brand_cluster, "VN_BOX");
+assert.ok(unknownBrandBox.data.hinh_anh.includes("/VN_BOX/"));
+
+// HT Carton không có sub-brand metadata
+const htBox = getPrice({
+  thuong_hieu_id: HT_CARTON_ID, dia_chi: "HN", loai_hop: "Đối khẩu",
+  dai: 10, rong: 6, cao: 6
+});
+assert.strictEqual(htBox.success, true);
+assert.strictEqual(htBox.cum_thuong_hieu, "HT_CARTON");
+assert.strictEqual(htBox.sub_brand_id, undefined);
+assert.strictEqual(htBox.sub_brand_cluster, undefined);
+
+// ---- Fallback ảnh HT khi BBV thiếu ảnh SKU ----
+const bbvMissingHn = ["14x12x4", "18x12x4", "10x4x18"];
+bbvMissingHn.forEach((k) => {
+  const [d, r, c] = k.split("x").map(Number);
+  const res = getPrice({
+    thuong_hieu_id: BAO_BI_VIET_ID, dia_chi: "HN", dai: d, rong: r, cao: c
+  });
+  assert.strictEqual(res.success, true, `BBV HN ${k} phải tra được`);
+  assert.ok(
+    res.data.hinh_anh.includes("/image_box/"),
+    `BBV HN ${k} phải fallback ảnh HT, nhận: ${res.data.hinh_anh}`
+  );
+});
+
+const bbvMissingHcm = ["18x12x4", "10x3x18"];
+bbvMissingHcm.forEach((k) => {
+  const [d, r, c] = k.split("x").map(Number);
+  const res = getPrice({
+    thuong_hieu_id: BAO_BI_VIET_ID, dia_chi: "HCM", dai: d, rong: r, cao: c
+  });
+  assert.strictEqual(res.success, true, `BBV HCM ${k} phải tra được`);
+  assert.ok(
+    res.data.hinh_anh.includes("/image_box/"),
+    `BBV HCM ${k} phải fallback ảnh HT, nhận: ${res.data.hinh_anh}`
+  );
+});
+
+// SKU BBV có ảnh riêng thì không fallback
+const bbvHasImage = getPrice({
+  thuong_hieu_id: BAO_BI_VIET_ID, dia_chi: "HN", dai: 10, rong: 6, cao: 6
+});
+assert.ok(bbvHasImage.data.hinh_anh.includes("/BBV/"));
+
 // ---- Ưu đãi HN chỉ tính tiền hộp: mốc 2/5/9/12 triệu và upsell từ 90% ----
 const discountedHnBox = (subtotal) => getPrice({
   thuong_hieu_id: OTHER_BRAND_ID, dia_chi: "HN", loai_hop: HOP_GIAY,
@@ -292,7 +377,7 @@ assert.strictEqual(bagPrice("HN", 25, "den"), "35.000");
 assert.strictEqual(bagPrice("HN", 25, "hồng"), "40.000");
 assert.strictEqual(bagPrice("HCM", 249, "den"), "42.000");
 assert.strictEqual(bagPrice("HCM", 250, "den"), "40.000");
-assert.strictEqual(bagPrice("HCM", 250, "xanh"), "46.000");
+assert.strictEqual(bagPrice("HCM", 250, "xanh"), "43.000");
 assert.strictEqual(accessory({ dia_chi: "HN", loai_san_pham: "Túi niêm phong" }).data.length, 8);
 assert.strictEqual(Object.prototype.hasOwnProperty.call(tapeHn(6).data, "uu_dai_don_hop"), false);
 

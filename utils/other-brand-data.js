@@ -5,6 +5,30 @@ const {
   ACCESSORIES_HCM_OTHER_BRANDS
 } = require("./data-other-brands");
 const { SIZE_CO_SAN_HN, SIZE_CO_SAN_HCM } = require("./data");
+const { replaceImagePrefix, subBrandHasImage, SUB_BRAND_CLUSTERS } = require("./sub-brand-config");
+
+// Map SKU -> URL ảnh của HT Carton (image_box) để fallback khi BBV thiếu ảnh.
+const HT_IMAGE_MAP = Object.freeze({
+  HN: Object.freeze(new Map(SIZE_CO_SAN_HN.map((b) => [`${b.D}x${b.R}x${b.C}`, b.hinh_anh]))),
+  HCM: Object.freeze(new Map(SIZE_CO_SAN_HCM.map((b) => [`${b.D}x${b.R}x${b.C}`, b.hinh_anh])))
+});
+
+function extractFileName(url) {
+  if (!url) return null;
+  const match = url.match(/\/([^/]+\.jpg)$/);
+  return match ? match[1] : null;
+}
+
+function resolveImageUrl(box, region, subBrandCluster) {
+  const fileName = extractFileName(box.hinh_anh);
+  if (subBrandHasImage(subBrandCluster, fileName)) {
+    return replaceImagePrefix(box.hinh_anh, subBrandCluster);
+  }
+  // Fallback: dùng ảnh của HT Carton
+  const key = `${box.D}x${box.R}x${box.C}`;
+  const htUrl = HT_IMAGE_MAP[region].get(key);
+  return htUrl || box.hinh_anh;
+}
 
 
 const EXPECTED_COUNTS = Object.freeze({
@@ -89,29 +113,55 @@ function validateRegion(region, boxes, accessories, htBoxes) {
   }
   validateAccessoryPrices(region, accessories);
 
-  return Object.freeze({
-    boxes: Object.freeze(boxes.map((box) => Object.freeze(box))),
-    accessories: Object.freeze({
-      tapes: Object.freeze(accessories.tapes.map((item) => Object.freeze(item))),
-      bubble_wrap: Object.freeze(accessories.bubble_wrap.map((item) => Object.freeze(item))),
-      pe_shipping_bags: Object.freeze(accessories.pe_shipping_bags.map((item) => Object.freeze(item))),
-      common_notes: Object.freeze(accessories.common_notes)
-    })
-  });
+  return { boxes, accessories };
 }
 
-const OTHER_BRAND_DATA = Object.freeze({
+// Validate raw data khi load module
+const RAW_DATA = Object.freeze({
   HN: validateRegion("HN", SIZE_CO_SAN_HN_OTHER_BRANDS, ACCESSORIES_HN_OTHER_BRANDS, SIZE_CO_SAN_HN),
   HCM: validateRegion("HCM", SIZE_CO_SAN_HCM_OTHER_BRANDS, ACCESSORIES_HCM_OTHER_BRANDS, SIZE_CO_SAN_HCM)
 });
 
-function getOtherBrandBoxes(region) {
-  return OTHER_BRAND_DATA[region].boxes;
+/**
+ * Tạo bản sao data với URL ảnh thay đổi theo sub-brand.
+ * Không mutate data gốc.
+ */
+function buildSubBrandData(region, subBrandCluster) {
+  const raw = RAW_DATA[region];
+  const boxes = raw.boxes.map((box) => ({
+    ...box,
+    hinh_anh: resolveImageUrl(box, region, subBrandCluster)
+  }));
+
+  return Object.freeze({
+    boxes: Object.freeze(boxes.map((box) => Object.freeze(box))),
+    accessories: raw.accessories
+  });
 }
 
-function getOtherBrandAccessories(region) {
-  return OTHER_BRAND_DATA[region].accessories;
+const SUB_BRAND_CACHE = new Map();
+
+function getSubBrandData(region, subBrandCluster) {
+  const key = `${region}|${subBrandCluster || SUB_BRAND_CLUSTERS.VN_BOX}`;
+  if (!SUB_BRAND_CACHE.has(key)) {
+    SUB_BRAND_CACHE.set(key, buildSubBrandData(region, subBrandCluster));
+  }
+  return SUB_BRAND_CACHE.get(key);
 }
+
+function getOtherBrandBoxes(region, subBrandCluster) {
+  return getSubBrandData(region, subBrandCluster).boxes;
+}
+
+function getOtherBrandAccessories(region, subBrandCluster) {
+  return getSubBrandData(region, subBrandCluster).accessories;
+}
+
+// View mặc định (VN_BOX) giữ tương thích với client cũ đọc trực tiếp.
+const OTHER_BRAND_DATA = Object.freeze({
+  HN: getSubBrandData("HN", SUB_BRAND_CLUSTERS.VN_BOX),
+  HCM: getSubBrandData("HCM", SUB_BRAND_CLUSTERS.VN_BOX)
+});
 
 module.exports = {
   EXPECTED_COUNTS,

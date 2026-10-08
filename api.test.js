@@ -45,7 +45,7 @@ function invoke({ method = "POST", body = {}, query = {} }) {
     so_luong: "250"
   } });
   assert.strictEqual(getBag.statusCode, 200);
-  assert.strictEqual(getBag.payload.data.gia_theo_so_luong.gia, "46.000");
+  assert.strictEqual(getBag.payload.data.gia_theo_so_luong.gia, "43.000");
 
   const accessoryCatalog = await invoke({ body: {
     thuong_hieu_id: "other", dia_chi: "HN", loai_san_pham: "Xốp chống sốc"

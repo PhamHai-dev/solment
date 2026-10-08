@@ -2,6 +2,7 @@ const { SIZE_CO_SAN_HN, SIZE_CO_SAN_HCM } = require("./data");
 const { tinhMayBeHN, tinhMayBoHN, tinhGiaHCM } = require("./formulas");
 const { tinhGiaTam } = require("./tam-carton");
 const { BRAND_CLUSTERS, resolveBrand, brandMetadata } = require("./brand-config");
+const { resolveSubBrand, subBrandMetadata } = require("./sub-brand-config");
 const { getOtherBrandBoxes, getOtherBrandAccessories } = require("./other-brand-data");
 const { calculateAvailableBoxDiscount, DISCOUNT_TIERS } = require("./available-box-discount");
 const { isAccessoryProduct, priceAccessory } = require("./accessory-pricing");
@@ -33,6 +34,15 @@ const LOAI_HOP_CHUA_CO_CONG_THUC_RIENG = {
   HN: ["Nắp gài đáy khóa", "Vách ngăn"],
   HCM: ["Nắp gài đáy khóa", "Hộp nắp chùm", "Vách ngăn"]
 };
+
+/**
+ * Gộp metadata của brand cluster và sub-brand (nếu có) vào kết quả trả về.
+ */
+function brandResult(brandContext, subBrandContext, result = {}) {
+  const merged = { ...result, ...brandMetadata(brandContext) };
+  if (subBrandContext) Object.assign(merged, subBrandMetadata(subBrandContext));
+  return merged;
+}
 
 function tinhPhiKhuonBeGoc(diaChi, loaiHop, soBat = 1) {
   const nhieuBat = soBat >= 2;
@@ -434,8 +444,18 @@ function getPrice(requestData) {
   const { dia_chi, loai_hop, dai, rong, cao, so_luong, in_an, so_mau_in, ban_in_phuc_tap, loai_san_pham } = requestData;
   const brandContext = resolveBrand(requestData.thuong_hieu_id);
   if (!brandContext.success) return brandContext;
-  const withBrand = (result) => ({ ...result, ...brandMetadata(brandContext) });
   const brandCluster = brandContext.cum_thuong_hieu;
+
+  // Lớp route thứ hai: trong OTHER_BRANDS, mỗi brand có bộ ảnh riêng.
+  // Chính sách giá, danh mục sản phẩm và phụ kiện vẫn dùng chung.
+  let subBrandContext = null;
+  if (brandCluster === BRAND_CLUSTERS.OTHER_BRANDS) {
+    subBrandContext = resolveSubBrand(requestData.thuong_hieu_id);
+    if (!subBrandContext.success) return brandResult(brandContext, subBrandContext);
+  }
+  const subBrandCluster = subBrandContext ? subBrandContext.sub_brand_cluster : null;
+
+  const withBrand = (result) => brandResult(brandContext, subBrandContext, result);
 
   if (dia_chi !== "HN" && dia_chi !== "HCM") {
     return withBrand({ success: false, message: "dia_chi không hợp lệ, phải là HN hoặc HCM." });
@@ -451,7 +471,7 @@ function getPrice(requestData) {
         message: "Chưa có bảng giá phụ kiện cho HT Carton; không sử dụng giá của cụm thương hiệu khác."
       });
     }
-    return withBrand(priceAccessory(requestData, getOtherBrandAccessories(diaChi)));
+    return withBrand(priceAccessory(requestData, getOtherBrandAccessories(diaChi, subBrandCluster)));
   }
 
   if (loai_san_pham === "Tấm carton") {
@@ -494,7 +514,7 @@ function getPrice(requestData) {
 
   const htArrCoSan = diaChi === "HCM" ? SIZE_CO_SAN_HCM : SIZE_CO_SAN_HN;
   const arrCoSan = brandCluster === BRAND_CLUSTERS.OTHER_BRANDS
-    ? getOtherBrandBoxes(diaChi)
+    ? getOtherBrandBoxes(diaChi, subBrandCluster)
     : htArrCoSan;
   let matches = [];
   const reqSorted = [D, R, C].sort((a, b) => b - a);

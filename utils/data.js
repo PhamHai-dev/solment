@@ -22,7 +22,7 @@ const SIZE_CO_SAN_HN = [
   { loai_hop: "Đối khẩu", D: 20, R: 15, C: 15, loai_song: "E", gia_le: 2100, gia_si: 2000, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/20x15x15.jpg" },
   { loai_hop: "Đối khẩu", D: 20, R: 15, C: 5, loai_song: "B", gia_le: 1400, gia_si: 1230, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/20x15x5.jpg" },
   { loai_hop: "Đối khẩu", D: 20, R: 20, C: 10, loai_song: "B", gia_le: 2350, gia_si: 2150, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/20x20x10.jpg" },
-  { loai_hop: "Đối khẩu", D: 20, R: 20, C: 15, loai_song: "B", gia_le: 2680, gia_si: 2500, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/20x20x15.png" },
+  { loai_hop: "Đối khẩu", D: 20, R: 20, C: 15, loai_song: "B", gia_le: 2680, gia_si: 2500, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/20x20x15.jpg" },
   { loai_hop: "Đối khẩu", D: 25, R: 10, C: 10, loai_song: "E", gia_le: 1400, gia_si: 1230, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/25x10x10.jpg" },
   { loai_hop: "Đối khẩu", D: 25, R: 15, C: 5, loai_song: "E", gia_le: 1660, gia_si: 1540, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/25x15x5.jpg" },
   { loai_hop: "Đối khẩu", D: 25, R: 15, C: 10, loai_song: "B", gia_le: 2000, gia_si: 1800, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/25x15x10.jpg" },
@@ -51,7 +51,7 @@ const SIZE_CO_SAN_HN = [
   { loai_hop: "Nắp gài pizza", D: 30, R: 25, C: 6, loai_song: "E", gia_le: 3250, gia_si: 3100, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/30x25x6.jpg" },
   { loai_hop: "Nắp gài pizza", D: 35, R: 25, C: 7, loai_song: "E", gia_le: 3680, gia_si: 3600, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/35x25x7.jpg" },
 
-  { loai_hop: "Nắp cài 2 đầu", D: 8.5, R: 5, C: 8.5, loai_song: "E", gia_le: 800, gia_si: 690, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/8.5x5x8.5.png" },
+  { loai_hop: "Nắp cài 2 đầu", D: 8.5, R: 5, C: 8.5, loai_song: "E", gia_le: 800, gia_si: 690, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/8.5x5x8.5.jpg" },
   { loai_hop: "Nắp cài 2 đầu", D: 10, R: 4, C: 18, loai_song: "E", gia_le: 1250, gia_si: 1100, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/10x4x18.jpg" },
 
   { loai_hop: "Hộp giày", D: 31, R: 19, C: 11, loai_song: "E", gia_le: 3600, gia_si: 3300, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/31x19x11.jpg" }
@@ -59,7 +59,7 @@ const SIZE_CO_SAN_HN = [
 
 const SIZE_CO_SAN_HCM = [
   { loai_hop: "Đối khẩu", D: 10, R: 6, C: 6, loai_song: "E", gia_le: 700, gia_si_300: 600, gia_si_1000: 550, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/10x6x6.jpg" },
-  { loai_hop: "Đối khẩu", D: 10, R: 8, C: 8, loai_song: "E", gia_le: 1000, gia_si_300: 900, gia_si_1000: 800, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/10x8x8.png" },
+  { loai_hop: "Đối khẩu", D: 10, R: 8, C: 8, loai_song: "E", gia_le: 1000, gia_si_300: 900, gia_si_1000: 800, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/10x8x8.jpg" },
   { loai_hop: "Đối khẩu", D: 10, R: 10, C: 8, loai_song: "E", gia_le: 1100, gia_si_300: 950, gia_si_1000: 850, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/10x10x8.jpg" },
   { loai_hop: "Đối khẩu", D: 10, R: 10, C: 10, loai_song: "E", gia_le: 1150, gia_si_300: 1050, gia_si_1000: 950, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/10x10x10.jpg" },
   { loai_hop: "Đối khẩu", D: 12, R: 10, C: 5, loai_song: "E", gia_le: 1000, gia_si_300: 900, gia_si_1000: 800, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/12x10x5.jpg" },
@@ -79,7 +79,7 @@ const SIZE_CO_SAN_HCM = [
   { loai_hop: "Đối khẩu", D: 20, R: 15, C: 10, loai_song: "B", gia_le: 2000, gia_si_300: 1800, gia_si_1000: 1760, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/20x15x10.jpg" },
   { loai_hop: "Đối khẩu", D: 20, R: 15, C: 15, loai_song: "B", gia_le: 2500, gia_si_300: 2250, gia_si_1000: 2200, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/20x15x15.jpg" },
   { loai_hop: "Đối khẩu", D: 20, R: 20, C: 10, loai_song: "B", gia_le: 2800, gia_si_300: 2500, gia_si_1000: 2400, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/20x20x10.jpg" },
-  { loai_hop: "Đối khẩu", D: 20, R: 20, C: 15, loai_song: "B", gia_le: 3000, gia_si_300: 2800, gia_si_1000: 2730, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/20x20x15.png" },
+  { loai_hop: "Đối khẩu", D: 20, R: 20, C: 15, loai_song: "B", gia_le: 3000, gia_si_300: 2800, gia_si_1000: 2730, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/20x20x15.jpg" },
   { loai_hop: "Đối khẩu", D: 25, R: 10, C: 10, loai_song: "B", gia_le: 1800, gia_si_300: 1500, gia_si_1000: 1450, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/25x10x10.jpg" },
   { loai_hop: "Đối khẩu", D: 25, R: 15, C: 10, loai_song: "B", gia_le: 2200, gia_si_300: 2000, gia_si_1000: 1950, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/25x15x10.jpg" },
   { loai_hop: "Đối khẩu", D: 25, R: 15, C: 15, loai_song: "B", gia_le: 2600, gia_si_300: 2500, gia_si_1000: 2450, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/25x15x15.jpg" },
@@ -96,7 +96,7 @@ const SIZE_CO_SAN_HCM = [
   { loai_hop: "Nắp gài pizza", D: 18, R: 12, C: 4, loai_song: "E", gia_le: 1300, gia_si_300: 1250, gia_si_1000: 1150, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/18x12x4.jpg" },
   { loai_hop: "Nắp gài pizza", D: 25, R: 20, C: 6, loai_song: "E", gia_le: 2700, gia_si_300: 2600, gia_si_1000: 2550, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/25x20x6.jpg" },
   { loai_hop: "Nắp gài pizza", D: 30, R: 20, C: 5, loai_song: "E", gia_le: 2900, gia_si_300: 2850, gia_si_1000: 2800, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/30x20x5.jpg" },
-  { loai_hop: "Nắp cài 2 đầu", D: 8.5, R: 5, C: 8.5, loai_song: "E", gia_le: 900, gia_si_300: 800, gia_si_1000: 760, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/8.5x5x8.5.png" },
+  { loai_hop: "Nắp cài 2 đầu", D: 8.5, R: 5, C: 8.5, loai_song: "E", gia_le: 900, gia_si_300: 800, gia_si_1000: 760, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/8.5x5x8.5.jpg" },
   { loai_hop: "Nắp cài 2 đầu", D: 10, R: 3, C: 18, loai_song: "E", gia_le: 1100, gia_si_300: 950, gia_si_1000: 860, hinh_anh: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/10x3x18.jpg" }
 ];
 
