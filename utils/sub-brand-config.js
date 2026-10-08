@@ -25,14 +25,20 @@ const BAO_BI_VIET_IMAGES = Object.freeze(new Set([
   "30x10x10.jpg", "30x15x10.jpg", "30x20x10.jpg", "30x20x15.jpg", "30x20x20.jpg",
   "30x20x5.jpg", "30x20x7.jpg", "30x25x6.jpg",
   "31x19x11.jpg", "32x22x12.jpg", "35x25x15.jpg", "35x25x7.jpg",
-  "40x30x20.jpg", "60x40x40.jpg", "8.5x5x8.5.jpg"
+  "40x30x20.jpg", "60x40x40.jpg", "8.5x5x8.5.jpg",
+  "10x3x18.jpg", "10x4x18.jpg", "10x5x15.jpg", "14x12x4.jpg", "18x12x4.jpg"
 ]));
+
+// Tập tên file không kèm đuôi, để data.js dùng .png hay .jpg đều khớp với ảnh BBV.
+const BAO_BI_VIET_IMAGE_STEMS = Object.freeze(
+  new Set([...BAO_BI_VIET_IMAGES].map((file) => file.replace(/\.(jpg|jpeg|png)$/i, "")))
+);
 
 // VN_BOX có đủ ảnh mọi SKU; BBV chỉ có các file trong BAO_BI_VIET_IMAGES.
 function subBrandHasImage(subBrandCluster, fileName) {
   if (!fileName) return false;
   if (subBrandCluster === SUB_BRAND_CLUSTERS.BAO_BI_VIET) {
-    return BAO_BI_VIET_IMAGES.has(fileName);
+    return BAO_BI_VIET_IMAGE_STEMS.has(String(fileName).replace(/\.(jpg|jpeg|png)$/i, ""));
   }
   return true;
 }

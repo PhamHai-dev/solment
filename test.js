@@ -287,31 +287,55 @@ assert.strictEqual(htBox.cum_thuong_hieu, "HT_CARTON");
 assert.strictEqual(htBox.sub_brand_id, undefined);
 assert.strictEqual(htBox.sub_brand_cluster, undefined);
 
-// ---- Fallback ảnh HT khi BBV thiếu ảnh SKU ----
-const bbvMissingHn = ["14x12x4", "18x12x4", "10x4x18"];
-bbvMissingHn.forEach((k) => {
+// ---- Ảnh BBV đã upload đủ cho mọi SKU ----
+// data.js có 3 SKU dùng đuôi .png nên cần check URL BBV chuẩn hóa về .jpg
+const bbvUploadedHn = ["14x12x4", "18x12x4", "10x4x18", "10x5x15"];
+bbvUploadedHn.forEach((k) => {
   const [d, r, c] = k.split("x").map(Number);
   const res = getPrice({
     thuong_hieu_id: BAO_BI_VIET_ID, dia_chi: "HN", dai: d, rong: r, cao: c
   });
   assert.strictEqual(res.success, true, `BBV HN ${k} phải tra được`);
   assert.ok(
-    res.data.hinh_anh.includes("/image_box/"),
-    `BBV HN ${k} phải fallback ảnh HT, nhận: ${res.data.hinh_anh}`
+    res.data.hinh_anh.includes("/BBV/") && res.data.hinh_anh.endsWith(`${k}.jpg`),
+    `BBV HN ${k} phải trả ảnh BBV dạng jpg, nhận: ${res.data.hinh_anh}`
   );
 });
 
-const bbvMissingHcm = ["18x12x4", "10x3x18"];
-bbvMissingHcm.forEach((k) => {
+const bbvUploadedHcm = ["18x12x4", "10x3x18"];
+bbvUploadedHcm.forEach((k) => {
   const [d, r, c] = k.split("x").map(Number);
   const res = getPrice({
     thuong_hieu_id: BAO_BI_VIET_ID, dia_chi: "HCM", dai: d, rong: r, cao: c
   });
   assert.strictEqual(res.success, true, `BBV HCM ${k} phải tra được`);
   assert.ok(
-    res.data.hinh_anh.includes("/image_box/"),
-    `BBV HCM ${k} phải fallback ảnh HT, nhận: ${res.data.hinh_anh}`
+    res.data.hinh_anh.includes("/BBV/") && res.data.hinh_anh.endsWith(`${k}.jpg`),
+    `BBV HCM ${k} phải trả ảnh BBV dạng jpg, nhận: ${res.data.hinh_anh}`
   );
+});
+
+// Mọi SKU của HT Carton đều phải có ảnh riêng của từng sub-brand
+[["HN", SIZE_CO_SAN_HN], ["HCM", SIZE_CO_SAN_HCM]].forEach(([region, boxes]) => {
+  boxes.forEach((box) => {
+    const expectedFile = `${box.D}x${box.R}x${box.C}.jpg`;
+    const res = getPrice({
+      thuong_hieu_id: BAO_BI_VIET_ID, dia_chi: region,
+      loai_hop: box.loai_hop, dai: box.D, rong: box.R, cao: box.C
+    });
+    assert.ok(res.success, `BBV ${region} ${expectedFile} phải tra được`);
+    const items = res.type === "multiple_pre_made" ? res.data : [res.data];
+    items.forEach((item) => {
+      assert.ok(
+        item.hinh_anh.endsWith(`/${expectedFile}`),
+        `BBV ${region} ${expectedFile} phải trả ảnh BBV riêng, nhận: ${item.hinh_anh}`
+      );
+      assert.ok(
+        item.hinh_anh.includes("/BBV/"),
+        `BBV ${region} ${expectedFile} phải dùng prefix /BBV/, nhận: ${item.hinh_anh}`
+      );
+    });
+  });
 });
 
 // SKU BBV có ảnh riêng thì không fallback

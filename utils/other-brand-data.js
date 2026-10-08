@@ -5,7 +5,7 @@ const {
   ACCESSORIES_HCM_OTHER_BRANDS
 } = require("./data-other-brands");
 const { SIZE_CO_SAN_HN, SIZE_CO_SAN_HCM } = require("./data");
-const { replaceImagePrefix, subBrandHasImage, SUB_BRAND_CLUSTERS } = require("./sub-brand-config");
+const { getImagePrefix, subBrandHasImage, SUB_BRAND_CLUSTERS } = require("./sub-brand-config");
 
 // Map SKU -> URL ảnh của HT Carton (image_box) để fallback khi BBV thiếu ảnh.
 const HT_IMAGE_MAP = Object.freeze({
@@ -15,14 +15,17 @@ const HT_IMAGE_MAP = Object.freeze({
 
 function extractFileName(url) {
   if (!url) return null;
-  const match = url.match(/\/([^/]+\.jpg)$/);
+  const match = url.match(/\/([^/]+\.(?:jpg|jpeg|png))$/i);
   return match ? match[1] : null;
 }
 
 function resolveImageUrl(box, region, subBrandCluster) {
   const fileName = extractFileName(box.hinh_anh);
   if (subBrandHasImage(subBrandCluster, fileName)) {
-    return replaceImagePrefix(box.hinh_anh, subBrandCluster);
+    // BBV lưu ảnh dạng .jpg: build URL mới từ prefix + fileName
+    const prefix = getImagePrefix(subBrandCluster);
+    const fileNameJpg = fileName.replace(/\.(png|jpeg)$/i, ".jpg");
+    return `${prefix}/${fileNameJpg}`;
   }
   // Fallback: dùng ảnh của HT Carton
   const key = `${box.D}x${box.R}x${box.C}`;
