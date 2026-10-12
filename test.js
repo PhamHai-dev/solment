@@ -236,8 +236,11 @@ assert.deepStrictEqual(
 );
 
 // ---- Sub-brand routing: mỗi brand trong OTHER_BRANDS có bộ ảnh riêng ----
-const VN_BOX_ID = "100298786195956";
-const BAO_BI_VIET_ID = "104878245974807";
+const {
+  VN_BOX_ID,
+  BAO_BI_VIET_ID,
+  BAO_BI_VIET_ALT_ID
+} = require("./utils/sub-brand-config");
 
 const vnBoxBox = getPrice({
   thuong_hieu_id: VN_BOX_ID, dia_chi: "HN", loai_hop: "Đối khẩu",
@@ -276,6 +279,17 @@ const unknownBrandBox = getPrice({
 assert.strictEqual(unknownBrandBox.success, true);
 assert.strictEqual(unknownBrandBox.sub_brand_cluster, "VN_BOX");
 assert.ok(unknownBrandBox.data.hinh_anh.includes("/VN_BOX/"));
+
+// Alias tạm: brand ID riêng nhưng bán hàng Bao_bi_viet -> route về BBV
+const bbvAliasBox = getPrice({
+  thuong_hieu_id: BAO_BI_VIET_ALT_ID, dia_chi: "HN", loai_hop: "Đối khẩu",
+  dai: 25, rong: 15, cao: 15, so_luong: 200
+});
+assert.strictEqual(bbvAliasBox.success, true);
+assert.strictEqual(bbvAliasBox.sub_brand_id, BAO_BI_VIET_ALT_ID);
+assert.strictEqual(bbvAliasBox.sub_brand_cluster, "BAO_BI_VIET");
+assert.strictEqual(bbvAliasBox.sub_brand_mac_dinh, false);
+assert.ok(bbvAliasBox.data.hinh_anh.includes("/BBV/"));
 
 // HT Carton không có sub-brand metadata
 const htBox = getPrice({

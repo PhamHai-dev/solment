@@ -1,5 +1,7 @@
 const VN_BOX_ID = "100298786195956";
 const BAO_BI_VIET_ID = "104878245974807";
+// Tạm thời: brand ID này bán hàng của Bao_bi_viet nhưng có ID riêng trên hệ thống.
+const BAO_BI_VIET_ALT_ID = "1206158369238675";
 
 const SUB_BRAND_CLUSTERS = Object.freeze({
   VN_BOX: "VN_BOX",
@@ -43,24 +45,24 @@ function subBrandHasImage(subBrandCluster, fileName) {
   return true;
 }
 
+// Brand ID -> sub-brand cluster. Thêm brand mới vào đây, không viết if mới.
+const SUB_BRAND_CLUSTER_BY_BRAND_ID = Object.freeze({
+  [VN_BOX_ID]: SUB_BRAND_CLUSTERS.VN_BOX,
+  [BAO_BI_VIET_ID]: SUB_BRAND_CLUSTERS.BAO_BI_VIET,
+  [BAO_BI_VIET_ALT_ID]: SUB_BRAND_CLUSTERS.BAO_BI_VIET
+});
+
 function resolveSubBrand(rawBrandId) {
   const brandId = String(rawBrandId || "").trim();
+  const cluster = SUB_BRAND_CLUSTER_BY_BRAND_ID[brandId];
 
-  if (brandId === VN_BOX_ID) {
+  if (cluster) {
+    // VN_BOX là mặc định của cụm "thương hiệu khác" nên mới báo sub_brand_mac_dinh: true.
     return {
       success: true,
-      sub_brand_id: VN_BOX_ID,
-      sub_brand_cluster: SUB_BRAND_CLUSTERS.VN_BOX,
-      sub_brand_mac_dinh: true
-    };
-  }
-
-  if (brandId === BAO_BI_VIET_ID) {
-    return {
-      success: true,
-      sub_brand_id: BAO_BI_VIET_ID,
-      sub_brand_cluster: SUB_BRAND_CLUSTERS.BAO_BI_VIET,
-      sub_brand_mac_dinh: false
+      sub_brand_id: brandId,
+      sub_brand_cluster: cluster,
+      sub_brand_mac_dinh: cluster === SUB_BRAND_CLUSTERS.VN_BOX
     };
   }
 
@@ -99,6 +101,7 @@ function subBrandMetadata(context) {
 module.exports = {
   VN_BOX_ID,
   BAO_BI_VIET_ID,
+  BAO_BI_VIET_ALT_ID,
   SUB_BRAND_CLUSTERS,
   SUB_BRAND_IMAGE_PREFIX,
   BAO_BI_VIET_IMAGES,
