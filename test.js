@@ -239,7 +239,8 @@ assert.deepStrictEqual(
 const {
   VN_BOX_ID,
   BAO_BI_VIET_ID,
-  BAO_BI_VIET_ALT_ID
+  BAO_BI_VIET_ALT_ID,
+  CARTON_247_ID
 } = require("./utils/sub-brand-config");
 
 const vnBoxBox = getPrice({
@@ -291,6 +292,18 @@ assert.strictEqual(bbvAliasBox.sub_brand_cluster, "BAO_BI_VIET");
 assert.strictEqual(bbvAliasBox.sub_brand_mac_dinh, false);
 assert.ok(bbvAliasBox.data.hinh_anh.includes("/BBV/"));
 
+// Hộp carton 247 dùng chung bảng giá nhưng có bộ ảnh riêng trên /public/247/.
+const carton247Box = getPrice({
+  thuong_hieu_id: CARTON_247_ID, dia_chi: "HN", loai_hop: "Đối khẩu",
+  dai: 25, rong: 15, cao: 15, so_luong: 200
+});
+assert.strictEqual(carton247Box.success, true);
+assert.strictEqual(carton247Box.cum_thuong_hieu, "OTHER_BRANDS");
+assert.strictEqual(carton247Box.sub_brand_id, CARTON_247_ID);
+assert.strictEqual(carton247Box.sub_brand_cluster, "CARTON_247");
+assert.strictEqual(carton247Box.sub_brand_mac_dinh, false);
+assert.ok(carton247Box.data.hinh_anh.endsWith("/public/247/25x15x15.jpg"));
+
 // HT Carton không có sub-brand metadata
 const htBox = getPrice({
   thuong_hieu_id: HT_CARTON_ID, dia_chi: "HN", loai_hop: "Đối khẩu",
@@ -329,25 +342,31 @@ bbvUploadedHcm.forEach((k) => {
   );
 });
 
-// Mọi SKU của HT Carton đều phải có ảnh riêng của từng sub-brand
-[["HN", SIZE_CO_SAN_HN], ["HCM", SIZE_CO_SAN_HCM]].forEach(([region, boxes]) => {
-  boxes.forEach((box) => {
-    const expectedFile = `${box.D}x${box.R}x${box.C}.jpg`;
-    const res = getPrice({
-      thuong_hieu_id: BAO_BI_VIET_ID, dia_chi: region,
-      loai_hop: box.loai_hop, dai: box.D, rong: box.R, cao: box.C
-    });
-    assert.ok(res.success, `BBV ${region} ${expectedFile} phải tra được`);
-    const items = res.type === "multiple_pre_made" ? res.data : [res.data];
-    items.forEach((item) => {
-      assert.ok(
-        item.hinh_anh.endsWith(`/${expectedFile}`),
-        `BBV ${region} ${expectedFile} phải trả ảnh BBV riêng, nhận: ${item.hinh_anh}`
-      );
-      assert.ok(
-        item.hinh_anh.includes("/BBV/"),
-        `BBV ${region} ${expectedFile} phải dùng prefix /BBV/, nhận: ${item.hinh_anh}`
-      );
+// Mọi SKU của từng sub-brand đều phải trả đúng bộ ảnh riêng.
+const imageSubBrands = [
+  { id: BAO_BI_VIET_ID, name: "BBV", prefix: "/BBV/" },
+  { id: CARTON_247_ID, name: "Carton 247", prefix: "/247/" }
+];
+imageSubBrands.forEach((subBrand) => {
+  [["HN", SIZE_CO_SAN_HN], ["HCM", SIZE_CO_SAN_HCM]].forEach(([region, boxes]) => {
+    boxes.forEach((box) => {
+      const expectedFile = `${box.D}x${box.R}x${box.C}.jpg`;
+      const res = getPrice({
+        thuong_hieu_id: subBrand.id, dia_chi: region,
+        loai_hop: box.loai_hop, dai: box.D, rong: box.R, cao: box.C
+      });
+      assert.ok(res.success, `${subBrand.name} ${region} ${expectedFile} phải tra được`);
+      const items = res.type === "multiple_pre_made" ? res.data : [res.data];
+      items.forEach((item) => {
+        assert.ok(
+          item.hinh_anh.endsWith(`/${expectedFile}`),
+          `${subBrand.name} ${region} ${expectedFile} phải trả đúng file, nhận: ${item.hinh_anh}`
+        );
+        assert.ok(
+          item.hinh_anh.includes(subBrand.prefix),
+          `${subBrand.name} ${region} ${expectedFile} phải dùng prefix ${subBrand.prefix}, nhận: ${item.hinh_anh}`
+        );
+      });
     });
   });
 });

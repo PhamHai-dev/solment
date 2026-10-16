@@ -30,6 +30,7 @@ Trong cụm `OTHER_BRANDS`, mỗi thương hiệu có bộ ảnh sản phẩm ri
 | `100298786195956` | VN_BOX (mặc định) | `.../public/VN_BOX/` |
 | `104878245974807` | Bao_bi_viet | `.../public/BBV/` |
 | `1206158369238675` | Bao_bi_viet (alias tạm) | `.../public/BBV/` |
+| `395680110301321` | Hộp carton 247 giá rẻ | `.../public/247/` |
 
 Response của OTHER_BRANDS có thêm:
 
@@ -43,12 +44,13 @@ Response của OTHER_BRANDS có thêm:
 
 Brand lạ (không match ID nào) tự động fallback về VN_BOX với `sub_brand_mac_dinh: true`.
 Brand ID `1206158369238675` là alias tạm: vẫn giữ nguyên `sub_brand_id` khi trả về, nhưng `sub_brand_cluster` là `BAO_BI_VIET`.
+Brand ID `395680110301321` route tới `CARTON_247` và lấy ảnh từ `.../public/247/`.
 
 #### Fallback ảnh HT
 
-Khi BBV chưa có ảnh của một SKU nào đó, API tự động dùng tạm ảnh từ kho chung `image_box` (của HT Carton) cho SKU đó. Danh sách ảnh BBV hiện có được khai báo trong `sub-brand-config.js`.
+Khi một sub-brand chưa có ảnh của SKU nào đó, API có thể dùng tạm ảnh từ kho chung `image_box` (của HT Carton). Danh sách ảnh BBV hiện có được khai báo trong `sub-brand-config.js`.
 
-Hiện bộ ảnh BBV đã phủ đủ mọi SKU, nên fallback chỉ kích hoạt khi thêm SKU mới mà chưa upload ảnh.
+Hiện bộ ảnh BBV và Carton 247 đã phủ đủ mọi SKU; fallback chỉ kích hoạt khi thêm SKU mới mà chưa upload ảnh.
 
 ## Hộp có sẵn
 
