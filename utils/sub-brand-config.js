@@ -1,8 +1,8 @@
 const VN_BOX_ID = "100298786195956";
 const BAO_BI_VIET_ID = "104878245974807";
-// Tạm thời: brand ID này bán hàng của Bao_bi_viet nhưng có ID riêng trên hệ thống.
-const BAO_BI_VIET_ALT_ID = "1206158369238675";
 const CARTON_247_ID = "395680110301321";
+// Tạm thời: brand ID này dùng chung bộ ảnh và routing của Hộp carton 247.
+const CARTON_247_ALT_ID = "1206158369238675";
 
 const SUB_BRAND_CLUSTERS = Object.freeze({
   VN_BOX: "VN_BOX",
@@ -52,8 +52,8 @@ function subBrandHasImage(subBrandCluster, fileName) {
 const SUB_BRAND_CLUSTER_BY_BRAND_ID = Object.freeze({
   [VN_BOX_ID]: SUB_BRAND_CLUSTERS.VN_BOX,
   [BAO_BI_VIET_ID]: SUB_BRAND_CLUSTERS.BAO_BI_VIET,
-  [BAO_BI_VIET_ALT_ID]: SUB_BRAND_CLUSTERS.BAO_BI_VIET,
-  [CARTON_247_ID]: SUB_BRAND_CLUSTERS.CARTON_247
+  [CARTON_247_ID]: SUB_BRAND_CLUSTERS.CARTON_247,
+  [CARTON_247_ALT_ID]: SUB_BRAND_CLUSTERS.CARTON_247
 });
 
 function resolveSubBrand(rawBrandId) {
@@ -105,8 +105,8 @@ function subBrandMetadata(context) {
 module.exports = {
   VN_BOX_ID,
   BAO_BI_VIET_ID,
-  BAO_BI_VIET_ALT_ID,
   CARTON_247_ID,
+  CARTON_247_ALT_ID,
   SUB_BRAND_CLUSTERS,
   SUB_BRAND_IMAGE_PREFIX,
   BAO_BI_VIET_IMAGES,

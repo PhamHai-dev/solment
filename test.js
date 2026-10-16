@@ -239,8 +239,8 @@ assert.deepStrictEqual(
 const {
   VN_BOX_ID,
   BAO_BI_VIET_ID,
-  BAO_BI_VIET_ALT_ID,
-  CARTON_247_ID
+  CARTON_247_ID,
+  CARTON_247_ALT_ID
 } = require("./utils/sub-brand-config");
 
 const vnBoxBox = getPrice({
@@ -281,16 +281,16 @@ assert.strictEqual(unknownBrandBox.success, true);
 assert.strictEqual(unknownBrandBox.sub_brand_cluster, "VN_BOX");
 assert.ok(unknownBrandBox.data.hinh_anh.includes("/VN_BOX/"));
 
-// Alias tạm: brand ID riêng nhưng bán hàng Bao_bi_viet -> route về BBV
-const bbvAliasBox = getPrice({
-  thuong_hieu_id: BAO_BI_VIET_ALT_ID, dia_chi: "HN", loai_hop: "Đối khẩu",
+// Alias tạm: brand ID riêng nhưng dùng chung routing và bộ ảnh của Carton 247.
+const carton247AliasBox = getPrice({
+  thuong_hieu_id: CARTON_247_ALT_ID, dia_chi: "HN", loai_hop: "Đối khẩu",
   dai: 25, rong: 15, cao: 15, so_luong: 200
 });
-assert.strictEqual(bbvAliasBox.success, true);
-assert.strictEqual(bbvAliasBox.sub_brand_id, BAO_BI_VIET_ALT_ID);
-assert.strictEqual(bbvAliasBox.sub_brand_cluster, "BAO_BI_VIET");
-assert.strictEqual(bbvAliasBox.sub_brand_mac_dinh, false);
-assert.ok(bbvAliasBox.data.hinh_anh.includes("/BBV/"));
+assert.strictEqual(carton247AliasBox.success, true);
+assert.strictEqual(carton247AliasBox.sub_brand_id, CARTON_247_ALT_ID);
+assert.strictEqual(carton247AliasBox.sub_brand_cluster, "CARTON_247");
+assert.strictEqual(carton247AliasBox.sub_brand_mac_dinh, false);
+assert.ok(carton247AliasBox.data.hinh_anh.includes("/247/"));
 
 // Hộp carton 247 dùng chung bảng giá nhưng có bộ ảnh riêng trên /public/247/.
 const carton247Box = getPrice({
