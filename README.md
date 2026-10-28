@@ -31,6 +31,11 @@ Trong cụm `OTHER_BRANDS`, mỗi thương hiệu có bộ ảnh sản phẩm ri
 | `104878245974807` | Bao_bi_viet | `.../public/BBV/` |
 | `395680110301321` | Hộp carton 247 giá rẻ | `.../public/247/` |
 | `1206158369238675` | Hộp carton 247 (alias tạm) | `.../public/247/` |
+| `416791864849506` | Alpha box (`ALPHA_BOX`) | `.../public/alphabox/` |
+
+Alpha box dùng chung giá `OTHER_BRANDS`, tạo URL dạng `alphabox/<kích-thước>.jpg`.
+Cần upload đủ ảnh, bao gồm `10x8x8.jpg` và `10x3x18.jpg` còn thiếu ở lần kiểm kê local.
+Routing không kiểm tra HTTP để tự fallback nếu file Alpha chưa được upload.
 
 Response của OTHER_BRANDS có thêm:
 

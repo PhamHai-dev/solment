@@ -1,19 +1,22 @@
 const VN_BOX_ID = "100298786195956";
 const BAO_BI_VIET_ID = "104878245974807";
 const CARTON_247_ID = "395680110301321";
+const ALPHA_BOX_ID = "416791864849506";
 // Tạm thời: brand ID này dùng chung bộ ảnh và routing của Hộp carton 247.
 const CARTON_247_ALT_ID = "1206158369238675";
 
 const SUB_BRAND_CLUSTERS = Object.freeze({
   VN_BOX: "VN_BOX",
   BAO_BI_VIET: "BAO_BI_VIET",
-  CARTON_247: "CARTON_247"
+  CARTON_247: "CARTON_247",
+  ALPHA_BOX: "ALPHA_BOX"
 });
 
 const SUB_BRAND_IMAGE_PREFIX = Object.freeze({
   [SUB_BRAND_CLUSTERS.VN_BOX]: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX",
   [SUB_BRAND_CLUSTERS.BAO_BI_VIET]: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/BBV",
-  [SUB_BRAND_CLUSTERS.CARTON_247]: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/247"
+  [SUB_BRAND_CLUSTERS.CARTON_247]: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/247",
+  [SUB_BRAND_CLUSTERS.ALPHA_BOX]: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/alphabox"
 });
 
 // Danh sách file ảnh BBV thực tế đã upload lên storage.
@@ -39,7 +42,8 @@ const BAO_BI_VIET_IMAGE_STEMS = Object.freeze(
   new Set([...BAO_BI_VIET_IMAGES].map((file) => file.replace(/\.(jpg|jpeg|png)$/i, "")))
 );
 
-// VN_BOX và CARTON_247 có đủ ảnh mọi SKU; BBV dùng danh sách kiểm kê phía trên.
+// BBV dùng danh sách kiểm kê phía trên; các brand khác tạo URL trực tiếp.
+// Alpha box cần upload đủ ảnh JPG; không kiểm tra HTTP/fallback tự động khi ảnh thiếu.
 function subBrandHasImage(subBrandCluster, fileName) {
   if (!fileName) return false;
   if (subBrandCluster === SUB_BRAND_CLUSTERS.BAO_BI_VIET) {
@@ -53,7 +57,8 @@ const SUB_BRAND_CLUSTER_BY_BRAND_ID = Object.freeze({
   [VN_BOX_ID]: SUB_BRAND_CLUSTERS.VN_BOX,
   [BAO_BI_VIET_ID]: SUB_BRAND_CLUSTERS.BAO_BI_VIET,
   [CARTON_247_ID]: SUB_BRAND_CLUSTERS.CARTON_247,
-  [CARTON_247_ALT_ID]: SUB_BRAND_CLUSTERS.CARTON_247
+  [CARTON_247_ALT_ID]: SUB_BRAND_CLUSTERS.CARTON_247,
+  [ALPHA_BOX_ID]: SUB_BRAND_CLUSTERS.ALPHA_BOX
 });
 
 function resolveSubBrand(rawBrandId) {
@@ -89,7 +94,7 @@ function replaceImagePrefix(url, subBrandCluster) {
   const prefix = getImagePrefix(subBrandCluster);
   // Thay thế bất kỳ prefix sub-brand đã biết nào bằng prefix đúng.
   return url.replace(
-    /https:\/\/amqkxxpqkoagqqephtgl\.supabase\.co\/storage\/v1\/object\/public\/(VN_BOX|BBV|247)/,
+    /https:\/\/amqkxxpqkoagqqephtgl\.supabase\.co\/storage\/v1\/object\/public\/(VN_BOX|BBV|247|alphabox)(?=\/|$)/,
     prefix
   );
 }
@@ -107,6 +112,7 @@ module.exports = {
   BAO_BI_VIET_ID,
   CARTON_247_ID,
   CARTON_247_ALT_ID,
+  ALPHA_BOX_ID,
   SUB_BRAND_CLUSTERS,
   SUB_BRAND_IMAGE_PREFIX,
   BAO_BI_VIET_IMAGES,
