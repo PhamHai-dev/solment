@@ -178,6 +178,21 @@ Công thức sản xuất hộp tùy chỉnh và tấm carton giữ nguyên và 
 thương hiệu. Khi in trên form hộp có sẵn, giá phôi sản xuất cũng dùng cấu hình
 HT Carton chung, không bị thay đổi bởi bảng giá bán sẵn của thương hiệu khác.
 
+### Tấm carton
+
+- **Công thức giá gốc (3 lớp)**:
+  - HN: `dài x rộng x 0,735`
+  - HCM: Thử trước `dài x rộng x 0,735`; nếu $> 3.000đ$ giữ nguyên, nếu $le 3.000đ$ tính `dài x rộng x 0,8 + 200`
+  - Đơn giá 5 lớp = Đơn giá 3 lớp $\times 1,5$
+- **Điều kiện cần khuôn bế**:
+  - HN: Rộng $< 25cm$ **hoặc** Dài $< 60cm$
+  - HCM: Rộng $< 25cm$ **và** Dài $< 60cm$
+  - Phụ phí: cộng `200đ/tấm` và phí khuôn bế `600.000đ` (1 lần)
+- **Ngưỡng đơn tối thiểu (tiền tấm thuần túy = đơn giá x số lượng)**:
+  - Tấm trơn: nhận từ **2.000.000đ**
+  - Tấm có in: nhận từ **2.500.000đ**
+  - Khi chưa đạt: trả về `dat_dieu_kien: false` kèm `thanh_tien_tam_tinh`, `ly_do_khong_dat` và `so_luong_can_dat_toi_thieu`.
+
 ## Chạy local và kiểm thử
 
 ```powershell

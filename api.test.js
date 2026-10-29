@@ -105,6 +105,21 @@ function invoke({ method = "POST", body = {}, query = {} }) {
   assert.strictEqual(otherPrint.statusCode, 200);
   assert.deepStrictEqual(htPrint.payload.data, otherPrint.payload.data);
 
+  // Tấm carton: kiểm tra ngưỡng tối thiểu qua API
+  const tamUnderThreshold = await invoke({ body: {
+    dia_chi: "HN", loai_san_pham: "Tấm carton", dai: 50, rong: 40, so_luong: 500
+  } });
+  assert.strictEqual(tamUnderThreshold.statusCode, 200);
+  assert.strictEqual(tamUnderThreshold.payload.data.tam_3_lop.dat_dieu_kien, false);
+  assert.ok(tamUnderThreshold.payload.data.tam_3_lop.ly_do_khong_dat.includes("2.000.000"));
+
+  const tamMetThreshold = await invoke({ body: {
+    dia_chi: "HN", loai_san_pham: "Tấm carton", dai: 50, rong: 40, so_luong: 1500
+  } });
+  assert.strictEqual(tamMetThreshold.statusCode, 200);
+  assert.strictEqual(tamMetThreshold.payload.data.tam_3_lop.dat_dieu_kien, true);
+  assert.strictEqual(tamMetThreshold.payload.data.tam_3_lop.don_gia_tam, "1.670");
+
   const methodNotAllowed = await invoke({ method: "DELETE" });
   assert.strictEqual(methodNotAllowed.statusCode, 405);
 

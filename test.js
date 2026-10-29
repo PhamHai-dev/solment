@@ -93,12 +93,39 @@ assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: Number.NaN
 assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: 20, rong: 10, cao: 10, in_an: true, so_mau_in: 0 }).success, false);
 assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: 20, rong: 10, cao: 10, in_an: true, so_mau_in: 2.5 }).success, false);
 
-// ---- T\u1ea5m HCM c\u00f3 in tr\u1ea3 kho\u1ea3ng gi\u00e1 300\u2013400\u0111/m\u00e0u/t\u1ea5m ----
-const tamHcmIn = tinhGiaTam("HCM", { dai: 70, rong: 24, so_luong: 1000, in_an: true, so_mau_in: 1 }, formatPrice).data;
+// ---- Tấm HCM có in trả khoảng giá 300–400đ/màu/tấm ----
+const tamHcmIn = tinhGiaTam("HCM", { dai: 70, rong: 24, so_luong: 2000, in_an: true, so_mau_in: 1 }, formatPrice).data;
 assert.strictEqual(tamHcmIn.can_khuon_be, false);
+assert.strictEqual(tamHcmIn.tam_3_lop.dat_dieu_kien, true);
 assert.ok(tamHcmIn.tam_3_lop.don_gia_tu);
 assert.ok(tamHcmIn.tam_3_lop.don_gia_den);
 assert.strictEqual(Number(tamHcmIn.tam_3_lop.don_gia_den.replace(/\./g, "")) - Number(tamHcmIn.tam_3_lop.don_gia_tu.replace(/\./g, "")), 100);
+
+// ---- Tấm HCM có in chưa đạt 2,5 triệu: trả tạm tính & số lượng tối thiểu ----
+const tamHcmChuaDat = tinhGiaTam("HCM", { dai: 70, rong: 24, so_luong: 1000, in_an: true, so_mau_in: 1 }, formatPrice).data;
+assert.strictEqual(tamHcmChuaDat.tam_3_lop.dat_dieu_kien, false);
+assert.ok(tamHcmChuaDat.tam_3_lop.ly_do_khong_dat.includes("2.500.000"));
+assert.ok(tamHcmChuaDat.tam_3_lop.thanh_tien_tam_tinh);
+assert.ok(tamHcmChuaDat.tam_3_lop.so_luong_can_dat_toi_thieu);
+assert.strictEqual(tamHcmChuaDat.tam_5_lop.dat_dieu_kien, true);
+
+// ---- Tấm trơn HN: công thức 0,735 & ngưỡng tối thiểu 2 triệu ----
+const tamHnChuaDat = tinhGiaTam("HN", { dai: 50, rong: 40, so_luong: 500 }, formatPrice).data;
+assert.strictEqual(tamHnChuaDat.tam_3_lop.dat_dieu_kien, false);
+assert.ok(tamHnChuaDat.tam_3_lop.ly_do_khong_dat.includes("2.000.000"));
+assert.strictEqual(tamHnChuaDat.tam_3_lop.so_luong_can_dat_toi_thieu, "1.198");
+
+const tamHnDat = tinhGiaTam("HN", { dai: 50, rong: 40, so_luong: 1500 }, formatPrice).data;
+assert.strictEqual(tamHnDat.tam_3_lop.dat_dieu_kien, true);
+assert.strictEqual(tamHnDat.tam_3_lop.don_gia_tam, "1.670");
+assert.strictEqual(tamHnDat.tam_3_lop.thanh_tien, "3.105.000");
+
+// 70x40 không cần khuôn bế: đơn giá = 70*40*0.735 = 2058đ
+const tamHnKhongKhuon = tinhGiaTam("HN", { dai: 70, rong: 40, so_luong: 1000 }, formatPrice).data;
+assert.strictEqual(tamHnKhongKhuon.can_khuon_be, false);
+assert.strictEqual(tamHnKhongKhuon.tam_3_lop.dat_dieu_kien, true);
+assert.strictEqual(tamHnKhongKhuon.tam_3_lop.don_gia_tam, "2.058");
+assert.strictEqual(tamHnKhongKhuon.tam_3_lop.thanh_tien, "2.058.000");
 
 // ---- HCM c\u00f3 in nh\u01b0ng ch\u01b0a \u0111\u1ea1t 2,5 tri\u1ec7u: tr\u1ea3 kho\u1ea3ng t\u1ea1m t\u00ednh ----
 const hcmChuaDatIn = customData(getPrice({ dia_chi: "HCM", loai_hop: NAP_CAI, dai: 20.1, rong: 15.1, cao: 15.1, so_luong: 200, in_an: true, so_mau_in: 1 }));
