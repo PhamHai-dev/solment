@@ -24,9 +24,10 @@ function chuanHoaLoaiHop(loaiHop) {
   const typeMap = {
     "Đối khẩu": "Đối khẩu", "Nắp chồm": "Nắp chồm",
     "Nắp cài 2 đầu": "Nắp cài 2 đầu", "Nắp gài đáy khóa": "Nắp cài 2 đầu",
-    "Hộp nắp chùm": "Hộp nắp chùm", "Hộp giày": "Hộp giày",
-    "Nắp gài pizza": "Hộp kiểu pizza", "Hộp pizza": "Hộp kiểu pizza",
-    "Hộp kiểu pizza": "Hộp kiểu pizza"
+    "Hộp nắp chùm": "Hộp nắp chùm", "Nắp chùm": "Hộp nắp chùm",
+    "Hộp giày": "Hộp giày",
+    "Nắp gài pizza": "Hộp nắp chùm", "Hộp pizza": "Hộp nắp chùm",
+    "Hộp kiểu pizza": "Hộp nắp chùm", "pizza": "Hộp nắp chùm", "Pizza": "Hộp nắp chùm"
   };
   return typeMap[loaiHop] || "Đối khẩu";
 }
@@ -35,10 +36,6 @@ function tinhKhoGiayChatHN(normalizedType, D, R, C, H, G) {
   let khoGiay;
   let chat;
   switch (normalizedType) {
-    case "Hộp kiểu pizza":
-      khoGiay = (2 * R + 4 * C) * H + 2;
-      chat = (D + 2 * C) * G + 2;
-      break;
     case "Nắp chồm":
       khoGiay = (2 * R + C) * H + 2;
       chat = ((D + R) * 2 + 2.5 - 0.2) * G + 2;
@@ -48,6 +45,8 @@ function tinhKhoGiayChatHN(normalizedType, D, R, C, H, G) {
       chat = (2 * (D + R) + 2.5 - 0.2) * G + 2;
       break;
     case "Hộp nắp chùm":
+    case "Hộp kiểu pizza":
+    case "Hộp pizza":
       khoGiay = H * (3 * C + 2 * R) + 2;
       chat = G * (4 * C + D) - (G - 1) * C + 2;
       break;
@@ -117,9 +116,14 @@ function tinhGiaHCM(loaiHop, D, R, C, SL) {
   let khoGiay;
   let chat;
   switch (type) {
-    case "Nắp chồm": case "Hộp nắp chùm": khoGiay = (D + R) * 2 + 5; chat = R * 2 + C + 2; break;
+    case "Nắp chồm":
+    case "Hộp nắp chùm":
+    case "Hộp pizza":
+    case "Hộp kiểu pizza":
+      khoGiay = (D + R) * 2 + 5;
+      chat = R * 2 + C + 2;
+      break;
     case "Nắp cài 2 đầu": khoGiay = (D + R) * 2 + 5; chat = R * 2 + C + 8; break;
-    case "Hộp kiểu pizza": khoGiay = D + C * 4 + 3; chat = R * 2 + C * 3 + 2; break;
     case "Hộp giày": khoGiay = D + 2 * C + 2; chat = 2 * R + 2.3 * C + 2; break;
     default: khoGiay = (D + R) * 2 + 5; chat = R + C + 2;
   }

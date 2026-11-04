@@ -27,13 +27,39 @@ const LOAI_HOP_HOP_LE_HN = [
 ];
 const LOAI_HOP_HOP_LE_HCM = [
   "Đối khẩu", "Nắp chồm", "Nắp cài 2 đầu", "Nắp gài đáy khóa",
-  "Hộp nắp chùm", "Hộp giày", "Nắp gài pizza", "Vách ngăn"
+  "Hộp nắp chùm", "Hộp giày", "Nắp gài pizza", "Vách ngăn", "Hộp pizza"
 ];
 
 const LOAI_HOP_CHUA_CO_CONG_THUC_RIENG = {
   HN: ["Nắp gài đáy khóa", "Vách ngăn"],
-  HCM: ["Nắp gài đáy khóa", "Hộp nắp chùm", "Vách ngăn"]
+  HCM: ["Nắp gài đáy khóa", "Vách ngăn"]
 };
+
+function isNapChum(type) {
+  if (!type) return false;
+  const s = String(type).trim().toLowerCase();
+  return s === "hộp nắp chùm" || s === "nắp chùm";
+}
+
+function isPizza(type) {
+  if (!type) return false;
+  const s = String(type).trim().toLowerCase();
+  return s === "hộp pizza" || s === "nắp gài pizza" || s === "pizza";
+}
+
+function isPizzaOrNapChum(type) {
+  return isNapChum(type) || isPizza(type);
+}
+
+function isSameBoxType(requestedType, boxType) {
+  if (!requestedType || !boxType) return false;
+  const req = String(requestedType).trim().toLowerCase();
+  const box = String(boxType).trim().toLowerCase();
+  if (req === box) return true;
+  if (isNapChum(req) && isNapChum(box)) return true;
+  if (isPizza(req) && isPizza(box)) return true;
+  return false;
+}
 
 /**
  * Gộp metadata của brand cluster và sub-brand (nếu có) vào kết quả trả về.
@@ -61,6 +87,9 @@ function tinhPhiKhuonBeGoc(diaChi, loaiHop, soBat = 1) {
 
 function calculateCustomSize(diaChi, loaiHopInput, D, R, C, SL, inAn, mauIn, banInPhucTap, ghiChuTam, giaHopCoSanKhongIn = null) {
   let finalLoaiHop = loaiHopInput || "Đối khẩu";
+  if (isPizzaOrNapChum(finalLoaiHop)) {
+    finalLoaiHop = "Hộp pizza";
+  }
   let ghiChuChung = loaiHopInput ? "" : "Đã mặc định loại hộp là Đối khẩu do không nhận được yêu cầu loại cụ thể. ";
 
   if (LOAI_HOP_CHUA_CO_CONG_THUC_RIENG[diaChi].indexOf(finalLoaiHop) !== -1) {
@@ -507,7 +536,8 @@ function getPrice(requestData) {
 
   if (loai_hop) {
     const whitelist = diaChi === "HCM" ? LOAI_HOP_HOP_LE_HCM : LOAI_HOP_HOP_LE_HN;
-    if (whitelist.indexOf(loai_hop) === -1) {
+    const isHopLe = whitelist.indexOf(loai_hop) !== -1 || isPizzaOrNapChum(loai_hop);
+    if (!isHopLe) {
       return withBrand({ success: false, message: `Loại hộp không hợp lệ, phải là một trong: ${whitelist.join(", ")}` });
     }
   }
@@ -522,7 +552,7 @@ function getPrice(requestData) {
   for (let s of arrCoSan) {
     if (s.D === D && s.R === R && s.C === C) {
       if (loai_hop) {
-        if (s.loai_hop.toLowerCase() === loai_hop.toLowerCase()) matches.push(s);
+        if (isSameBoxType(loai_hop, s.loai_hop)) matches.push(s);
       } else {
         matches.push(s);
       }
@@ -591,7 +621,7 @@ function getPrice(requestData) {
   let giaPhoiCoSan = null;
   if (matches.length > 0 && in_an) {
     const htMatch = htArrCoSan.find((box) => box.D === D && box.R === R && box.C === C &&
-      (!loai_hop || box.loai_hop.toLowerCase() === loai_hop.toLowerCase()));
+      (!loai_hop || isSameBoxType(loai_hop, box.loai_hop)));
     giaPhoiCoSan = htMatch ? (htMatch.gia_si || htMatch.gia_si_300) : null;
   }
 

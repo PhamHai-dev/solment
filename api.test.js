@@ -120,6 +120,21 @@ function invoke({ method = "POST", body = {}, query = {} }) {
   assert.strictEqual(tamMetThreshold.payload.data.tam_3_lop.dat_dieu_kien, true);
   assert.strictEqual(tamMetThreshold.payload.data.tam_3_lop.don_gia_tam, "1.670");
 
+  // Hộp pizza & Hộp nắp chùm qua API
+  const pizzaPreMade = await invoke({ body: {
+    dia_chi: "HN", loai_hop: "Hộp pizza", dai: 25, rong: 20, cao: 6, so_luong: 100
+  } });
+  assert.strictEqual(pizzaPreMade.statusCode, 200);
+  assert.strictEqual(pizzaPreMade.payload.type, "pre_made");
+  assert.strictEqual(pizzaPreMade.payload.data.loai_hop, "Nắp gài pizza");
+
+  const chumCustom = await invoke({ body: {
+    dia_chi: "HN", loai_hop: "Hộp nắp chùm", dai: 22, rong: 16, cao: 5, so_luong: 500
+  } });
+  assert.strictEqual(chumCustom.statusCode, 200);
+  assert.strictEqual(chumCustom.payload.type, "custom_with_suggestions");
+  assert.strictEqual(chumCustom.payload.data.size_yeu_cau.loai_hop_ap_dung, "Hộp pizza");
+
   const methodNotAllowed = await invoke({ method: "DELETE" });
   assert.strictEqual(methodNotAllowed.statusCode, 405);
 

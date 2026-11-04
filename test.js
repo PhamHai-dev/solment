@@ -77,6 +77,30 @@ assert.strictEqual(hnNapChumVuot.bat_ngang, 1);
 assert.strictEqual(hnNapChumVuot.bat_doc, 1);
 // Hộp nắp chùm HN có công thức riêng: không cảnh báo thiếu công thức.
 assert.ok(!hnNapChumVuot.ghi_chu_chung.includes("ch\u01b0a c\u00f3 c\u00f4ng th\u1ee9c ri\u00eang"));
+assert.strictEqual(hnNapChumVuot.loai_hop_ap_dung, "Hộp pizza");
+
+// ---- Hàng có sẵn: tìm Hộp pizza so về Nắp gài pizza; tìm Hộp nắp chùm chỉ so về Hộp nắp chùm ----
+assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: "Hộp pizza", dai: 25, rong: 20, cao: 6, so_luong: 100 }).data.loai_hop, "Nắp gài pizza");
+assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: "Nắp gài pizza", dai: 25, rong: 20, cao: 6, so_luong: 100 }).data.loai_hop, "Nắp gài pizza");
+assert.strictEqual(getPrice({ dia_chi: "HCM", loai_hop: "Hộp pizza", dai: 25, rong: 20, cao: 6, so_luong: 100 }).data.loai_hop, "Nắp gài pizza");
+assert.strictEqual(getPrice({ dia_chi: "HN", loai_hop: "Hộp nắp chùm", dai: 25, rong: 20, cao: 6, so_luong: 100 }).type, "custom_with_suggestions");
+assert.strictEqual(getPrice({ dia_chi: "HCM", loai_hop: "Hộp nắp chùm", dai: 25, rong: 20, cao: 6, so_luong: 100 }).type, "custom_with_suggestions");
+
+const hnCustomPizza = customData(getPrice({ dia_chi: "HN", loai_hop: "Hộp pizza", dai: 22, rong: 16, cao: 5, so_luong: 500 }));
+const hnCustomChum = customData(getPrice({ dia_chi: "HN", loai_hop: "Hộp nắp chùm", dai: 22, rong: 16, cao: 5, so_luong: 500 }));
+assert.strictEqual(hnCustomPizza.loai_hop_ap_dung, "Hộp pizza");
+assert.strictEqual(hnCustomChum.loai_hop_ap_dung, "Hộp pizza");
+assert.strictEqual(hnCustomPizza.kho_giay_cm, 49);
+assert.strictEqual(hnCustomPizza.chat_cm, 44);
+assert.deepStrictEqual(hnCustomPizza.theo_loai_giay, hnCustomChum.theo_loai_giay);
+
+const hcmCustomPizza = customData(getPrice({ dia_chi: "HCM", loai_hop: "Hộp pizza", dai: 22, rong: 16, cao: 5, so_luong: 500 }));
+const hcmCustomChum = customData(getPrice({ dia_chi: "HCM", loai_hop: "Hộp nắp chùm", dai: 22, rong: 16, cao: 5, so_luong: 500 }));
+assert.strictEqual(hcmCustomPizza.loai_hop_ap_dung, "Hộp pizza");
+assert.strictEqual(hcmCustomChum.loai_hop_ap_dung, "Hộp pizza");
+assert.strictEqual(hcmCustomPizza.kho_giay_cm, 81);
+assert.ok(!hcmCustomPizza.ghi_chu_chung.includes("chưa có công thức"));
+assert.deepStrictEqual(hcmCustomPizza.theo_loai_giay, hcmCustomChum.theo_loai_giay);
 
 // ---- Đối khẩu HN đạt máy bổ: không cần khuôn bế ----
 const hnMayBo = customData(getPrice({ dia_chi: "HN", loai_hop: DOI_KHAU, dai: 42, rong: 30, cao: 15, so_luong: 500 }));

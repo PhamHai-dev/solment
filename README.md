@@ -178,6 +178,17 @@ Công thức sản xuất hộp tùy chỉnh và tấm carton giữ nguyên và 
 thương hiệu. Khi in trên form hộp có sẵn, giá phôi sản xuất cũng dùng cấu hình
 HT Carton chung, không bị thay đổi bởi bảng giá bán sẵn của thương hiệu khác.
 
+### Hộp pizza & Hộp nắp chùm
+
+- **Hàng có sẵn**:
+  - Tên các mẫu hộp có sẵn giữ nguyên theo danh mục (`Nắp gài pizza`, `Hộp nắp chùm`).
+  - Khi tra cứu: Tìm kiếm hộp pizza (`Hộp pizza`, `Nắp gài pizza`, `Pizza`) so khớp với các SKU nắp gài pizza có sẵn. Tìm kiếm hộp nắp chùm (`Hộp nắp chùm`, `Nắp chùm`) so khớp đúng dòng hộp nắp chùm riêng, không bị gộp chéo sang pizza.
+- **Đơn đặt theo yêu cầu**:
+  - Gộp chung 2 loại hộp: Dù input là nắp chùm hay pizza, tên áp dụng trả về chuẩn là **`Hộp pizza`**.
+  - **Công thức tính phôi**:
+    - **HN**: Dùng công thức Hộp nắp chùm (Khổ giấy = $3C + 2R + 2$; Chặt = $4C + D + 2$).
+    - **HCM**: Dùng công thức Nắp chồm (Khổ giấy = $(D + R) \times 2 + 5$; Chặt = $2R + C + 2$).
+
 ### Tấm carton
 
 - **Công thức giá gốc (3 lớp)**:
