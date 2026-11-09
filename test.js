@@ -292,7 +292,8 @@ const {
   BAO_BI_VIET_ID,
   CARTON_247_ID,
   CARTON_247_ALT_ID,
-  ALPHA_BOX_ID
+  ALPHA_BOX_ID,
+  SUPER_BOX_ID
 } = require("./utils/sub-brand-config");
 
 const vnBoxBox = getPrice({
@@ -368,6 +369,18 @@ assert.strictEqual(alphaBox.sub_brand_mac_dinh, false);
 assert.strictEqual(alphaBox.data.hinh_anh,
   "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/alphabox/35x25x15.jpg");
 
+const superBox = getPrice({
+  thuong_hieu_id: SUPER_BOX_ID, dia_chi: "HN", loai_hop: "Đối khẩu",
+  dai: 10, rong: 6, cao: 6, so_luong: 100
+});
+assert.strictEqual(superBox.success, true);
+assert.strictEqual(superBox.cum_thuong_hieu, "OTHER_BRANDS");
+assert.strictEqual(superBox.sub_brand_id, SUPER_BOX_ID);
+assert.strictEqual(superBox.sub_brand_cluster, "SUPER_BOX");
+assert.strictEqual(superBox.sub_brand_mac_dinh, false);
+assert.strictEqual(superBox.data.hinh_anh,
+  "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/SUPER_BOX/10x6x6.jpg");
+
 // HT Carton không có sub-brand metadata
 const htBox = getPrice({
   thuong_hieu_id: HT_CARTON_ID, dia_chi: "HN", loai_hop: "Đối khẩu",
@@ -410,7 +423,8 @@ bbvUploadedHcm.forEach((k) => {
 const imageSubBrands = [
   { id: BAO_BI_VIET_ID, name: "BBV", prefix: "/BBV/" },
   { id: CARTON_247_ID, name: "Carton 247", prefix: "/247/" },
-  { id: ALPHA_BOX_ID, name: "Alpha box", prefix: "/alphabox/" }
+  { id: ALPHA_BOX_ID, name: "Alpha box", prefix: "/alphabox/" },
+  { id: SUPER_BOX_ID, name: "Superbox", prefix: "/SUPER_BOX/" }
 ];
 imageSubBrands.forEach((subBrand) => {
   [["HN", SIZE_CO_SAN_HN], ["HCM", SIZE_CO_SAN_HCM]].forEach(([region, boxes]) => {

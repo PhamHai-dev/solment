@@ -2,6 +2,7 @@ const VN_BOX_ID = "100298786195956";
 const BAO_BI_VIET_ID = "104878245974807";
 const CARTON_247_ID = "395680110301321";
 const ALPHA_BOX_ID = "416791864849506";
+const SUPER_BOX_ID = "432124443327745";
 // Tạm thời: brand ID này dùng chung bộ ảnh và routing của Hộp carton 247.
 const CARTON_247_ALT_ID = "1206158369238675";
 
@@ -9,14 +10,16 @@ const SUB_BRAND_CLUSTERS = Object.freeze({
   VN_BOX: "VN_BOX",
   BAO_BI_VIET: "BAO_BI_VIET",
   CARTON_247: "CARTON_247",
-  ALPHA_BOX: "ALPHA_BOX"
+  ALPHA_BOX: "ALPHA_BOX",
+  SUPER_BOX: "SUPER_BOX"
 });
 
 const SUB_BRAND_IMAGE_PREFIX = Object.freeze({
   [SUB_BRAND_CLUSTERS.VN_BOX]: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/VN_BOX",
   [SUB_BRAND_CLUSTERS.BAO_BI_VIET]: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/BBV",
   [SUB_BRAND_CLUSTERS.CARTON_247]: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/247",
-  [SUB_BRAND_CLUSTERS.ALPHA_BOX]: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/alphabox"
+  [SUB_BRAND_CLUSTERS.ALPHA_BOX]: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/alphabox",
+  [SUB_BRAND_CLUSTERS.SUPER_BOX]: "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/SUPER_BOX"
 });
 
 // Danh sách file ảnh BBV thực tế đã upload lên storage.
@@ -58,7 +61,8 @@ const SUB_BRAND_CLUSTER_BY_BRAND_ID = Object.freeze({
   [BAO_BI_VIET_ID]: SUB_BRAND_CLUSTERS.BAO_BI_VIET,
   [CARTON_247_ID]: SUB_BRAND_CLUSTERS.CARTON_247,
   [CARTON_247_ALT_ID]: SUB_BRAND_CLUSTERS.CARTON_247,
-  [ALPHA_BOX_ID]: SUB_BRAND_CLUSTERS.ALPHA_BOX
+  [ALPHA_BOX_ID]: SUB_BRAND_CLUSTERS.ALPHA_BOX,
+  [SUPER_BOX_ID]: SUB_BRAND_CLUSTERS.SUPER_BOX
 });
 
 function resolveSubBrand(rawBrandId) {
@@ -94,7 +98,7 @@ function replaceImagePrefix(url, subBrandCluster) {
   const prefix = getImagePrefix(subBrandCluster);
   // Thay thế bất kỳ prefix sub-brand đã biết nào bằng prefix đúng.
   return url.replace(
-    /https:\/\/amqkxxpqkoagqqephtgl\.supabase\.co\/storage\/v1\/object\/public\/(VN_BOX|BBV|247|alphabox)(?=\/|$)/,
+    /https:\/\/amqkxxpqkoagqqephtgl\.supabase\.co\/storage\/v1\/object\/public\/(VN_BOX|BBV|247|alphabox|SUPER_BOX)(?=\/|$)/,
     prefix
   );
 }
@@ -113,6 +117,7 @@ module.exports = {
   CARTON_247_ID,
   CARTON_247_ALT_ID,
   ALPHA_BOX_ID,
+  SUPER_BOX_ID,
   SUB_BRAND_CLUSTERS,
   SUB_BRAND_IMAGE_PREFIX,
   BAO_BI_VIET_IMAGES,

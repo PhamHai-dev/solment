@@ -32,10 +32,12 @@ Trong cụm `OTHER_BRANDS`, mỗi thương hiệu có bộ ảnh sản phẩm ri
 | `395680110301321` | Hộp carton 247 giá rẻ | `.../public/247/` |
 | `1206158369238675` | Hộp carton 247 (alias tạm) | `.../public/247/` |
 | `416791864849506` | Alpha box (`ALPHA_BOX`) | `.../public/alphabox/` |
+| `432124443327745` | Superbox (`SUPER_BOX`) | `.../public/SUPER_BOX/` |
 
-Alpha box dùng chung giá `OTHER_BRANDS`, tạo URL dạng `alphabox/<kích-thước>.jpg`.
-Cần upload đủ ảnh, bao gồm `10x8x8.jpg` và `10x3x18.jpg` còn thiếu ở lần kiểm kê local.
-Routing không kiểm tra HTTP để tự fallback nếu file Alpha chưa được upload.
+Alpha box và Superbox dùng chung giá `OTHER_BRANDS`, tạo URL dạng `<prefix>/<kích-thước>.jpg`.
+Superbox trỏ ảnh về `https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/SUPER_BOX/<kích-thước>.jpg`.
+Cần upload đủ ảnh; 2 ảnh Superbox còn thiếu ở bản thiết kế gồm `30x20x15.jpg` và `32x22x12.jpg` sẽ được bổ sung sau.
+Routing không kiểm tra HTTP để tự fallback nếu file chưa được upload.
 
 Response của OTHER_BRANDS có thêm:
 

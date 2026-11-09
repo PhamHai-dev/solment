@@ -1,6 +1,7 @@
 const assert = require("assert");
 const handler = require("./api/tinh-gia");
 const { HT_CARTON_ID } = require("./utils/brand-config");
+const { SUPER_BOX_ID } = require("./utils/sub-brand-config");
 
 function invoke({ method = "POST", body = {}, query = {} }) {
   return new Promise((resolve, reject) => {
@@ -134,6 +135,18 @@ function invoke({ method = "POST", body = {}, query = {} }) {
   assert.strictEqual(chumCustom.statusCode, 200);
   assert.strictEqual(chumCustom.payload.type, "custom_with_suggestions");
   assert.strictEqual(chumCustom.payload.data.size_yeu_cau.loai_hop_ap_dung, "Hộp pizza");
+
+  // Superbox qua API
+  const superBoxApi = await invoke({ body: {
+    thuong_hieu_id: SUPER_BOX_ID, dia_chi: "HN", loai_hop: "Đối khẩu",
+    dai: 10, rong: 6, cao: 6, so_luong: 100
+  } });
+  assert.strictEqual(superBoxApi.statusCode, 200);
+  assert.strictEqual(superBoxApi.payload.cum_thuong_hieu, "OTHER_BRANDS");
+  assert.strictEqual(superBoxApi.payload.sub_brand_cluster, "SUPER_BOX");
+  assert.strictEqual(superBoxApi.payload.sub_brand_id, SUPER_BOX_ID);
+  assert.strictEqual(superBoxApi.payload.sub_brand_mac_dinh, false);
+  assert.ok(superBoxApi.payload.data.hinh_anh.includes("/SUPER_BOX/10x6x6.jpg"));
 
   const methodNotAllowed = await invoke({ method: "DELETE" });
   assert.strictEqual(methodNotAllowed.statusCode, 405);
