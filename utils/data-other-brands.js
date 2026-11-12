@@ -574,8 +574,8 @@ const SIZE_CO_SAN_HN_OTHER_BRANDS = [
     "loai_song": "E",
     "ghi_chu_san_pham": "quần áo",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/30x20x7.jpg",
-    "gia_le": 2680,
-    "gia_si": 2680,
+    "gia_le": 3100,
+    "gia_si": 3100,
     "chinh_sach_gia": "single_price_all_quantities"
   },
   {
@@ -586,8 +586,8 @@ const SIZE_CO_SAN_HN_OTHER_BRANDS = [
     "loai_song": "E",
     "ghi_chu_san_pham": "set quần áo thiết kế",
     "hinh_anh": "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/image_box/30x25x6.jpg",
-    "gia_le": 3100,
-    "gia_si": 3100,
+    "gia_le": 2680,
+    "gia_si": 2680,
     "chinh_sach_gia": "single_price_all_quantities"
   },
   {

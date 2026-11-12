@@ -381,6 +381,31 @@ assert.strictEqual(superBox.sub_brand_mac_dinh, false);
 assert.strictEqual(superBox.data.hinh_anh,
   "https://amqkxxpqkoagqqephtgl.supabase.co/storage/v1/object/public/SUPER_BOX/10x6x6.jpg");
 
+// Kiểm tra giá các mẫu hộp pizza cập nhật cho các sub-brand thuộc OTHER_BRANDS:
+// 30x20x7: 3.100đ, 30x25x6: 2.680đ, 30x20x5: 2.350đ
+[CARTON_247_ID, ALPHA_BOX_ID, SUPER_BOX_ID, VN_BOX_ID, BAO_BI_VIET_ID].forEach((brandId) => {
+  const box30207 = getPrice({
+    thuong_hieu_id: brandId, dia_chi: "HN", loai_hop: "Nắp gài pizza",
+    dai: 30, rong: 20, cao: 7, so_luong: 100
+  });
+  assert.strictEqual(box30207.success, true);
+  assert.strictEqual(box30207.data.gia_theo_so_luong.gia, "3.100");
+
+  const box30256 = getPrice({
+    thuong_hieu_id: brandId, dia_chi: "HN", loai_hop: "Nắp gài pizza",
+    dai: 30, rong: 25, cao: 6, so_luong: 100
+  });
+  assert.strictEqual(box30256.success, true);
+  assert.strictEqual(box30256.data.gia_theo_so_luong.gia, "2.680");
+
+  const box30205 = getPrice({
+    thuong_hieu_id: brandId, dia_chi: "HN", loai_hop: "Nắp gài pizza",
+    dai: 30, rong: 20, cao: 5, so_luong: 100
+  });
+  assert.strictEqual(box30205.success, true);
+  assert.strictEqual(box30205.data.gia_theo_so_luong.gia, "2.350");
+});
+
 // HT Carton không có sub-brand metadata
 const htBox = getPrice({
   thuong_hieu_id: HT_CARTON_ID, dia_chi: "HN", loai_hop: "Đối khẩu",
