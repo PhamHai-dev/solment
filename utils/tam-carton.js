@@ -142,8 +142,8 @@ function tinhGiaTam(diaChi, data, formatPrice) {
 
   const taoLyDoKhongDat = (tienTam) => {
     return coIn
-      ? `đơn có in cần tối thiểu 2.500.000đ (hiện tại ~${formatPrice(Math.round(tienTam))}đ)`
-      : `đơn tấm trơn cần tối thiểu 2.000.000đ (hiện tại ~${formatPrice(Math.round(tienTam))}đ)`;
+      ? `mỗi size tấm có in cần tối thiểu 2.500.000đ tiền tấm (hiện tại size này ~${formatPrice(Math.round(tienTam))}đ)`
+      : `mỗi size tấm trơn cần tối thiểu 2.000.000đ tiền tấm (hiện tại size này ~${formatPrice(Math.round(tienTam))}đ)`;
   };
 
   const dieuKienKhuonBe = diaChi === "HCM"
@@ -152,6 +152,7 @@ function tinhGiaTam(diaChi, data, formatPrice) {
   const ghiChuKhuonBe = canKhuonBe
     ? `Tấm có ${dieuKienKhuonBe} nên cần khuôn bế, đã cộng 200đ/tấm và phí khuôn bế ${formatPrice(phiKhuonBe)}đ (1 lần).`
     : "Tấm không cần khuôn bế.";
+  const ghiChuNguong = " Mức tối thiểu (2.000.000đ cho tấm trơn, 2.500.000đ cho tấm có in) tính riêng trên từng size; không gộp tổng đơn các size.";
 
   const coKhoangGia = diaChi === "HCM" && coIn && soMauIn > 0;
 
@@ -194,7 +195,7 @@ function tinhGiaTam(diaChi, data, formatPrice) {
       tam_5_lop: tam5LopData,
       phi_khuon_be: formatPrice(phiKhuonBe),
       phi_ban_in: formatPrice(phiBanIn),
-      ghi_chu: ghiChuKhuonBe + ghiChuIn
+      ghi_chu: ghiChuKhuonBe + ghiChuIn + ghiChuNguong
     }
   };
 }

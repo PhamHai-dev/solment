@@ -201,10 +201,11 @@ HT Carton chung, không bị thay đổi bởi bảng giá bán sẵn của thư
   - HN: Rộng $< 25cm$ **hoặc** Dài $< 60cm$
   - HCM: Rộng $< 25cm$ **và** Dài $< 60cm$
   - Phụ phí: cộng `200đ/tấm` và phí khuôn bế `600.000đ` (1 lần)
-- **Ngưỡng đơn tối thiểu (tiền tấm thuần túy = đơn giá x số lượng)**:
-  - Tấm trơn: nhận từ **2.000.000đ**
-  - Tấm có in: nhận từ **2.500.000đ**
-  - Khi chưa đạt: trả về `dat_dieu_kien: false` kèm `thanh_tien_tam_tinh`, `ly_do_khong_dat` và `so_luong_can_dat_toi_thieu`.
+- **Ngưỡng đơn tối thiểu (tiền tấm thuần túy = đơn giá x số lượng, tính riêng trên từng size)**:
+  - Tấm trơn: nhận từ **2.000.000đ** / 1 size
+  - Tấm có in: nhận từ **2.500.000đ** / 1 size
+  - **Quy tắc**: Mức tối thiểu tính riêng cho từng kích thước; không cộng dồn tổng đơn giữa các kích thước khác nhau. Nếu khách đặt nhiều size mà size nào không đủ ngưỡng tiền thì hệ thống không nhận sản xuất size đó.
+  - Khi chưa đạt: trả về `dat_dieu_kien: false` kèm `thanh_tien_tam_tinh`, `ly_do_khong_dat` và `so_luong_can_dat_toi_thieu` của riêng size đó.
 
 ## Chạy local và kiểm thử
 

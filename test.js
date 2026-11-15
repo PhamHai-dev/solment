@@ -137,6 +137,8 @@ assert.strictEqual(tamHcmChuaDat.tam_5_lop.dat_dieu_kien, true);
 const tamHnChuaDat = tinhGiaTam("HN", { dai: 50, rong: 40, so_luong: 500 }, formatPrice).data;
 assert.strictEqual(tamHnChuaDat.tam_3_lop.dat_dieu_kien, false);
 assert.ok(tamHnChuaDat.tam_3_lop.ly_do_khong_dat.includes("2.000.000"));
+assert.ok(tamHnChuaDat.tam_3_lop.ly_do_khong_dat.includes("mỗi size tấm"));
+assert.ok(tamHnChuaDat.ghi_chu.includes("tính riêng trên từng size"));
 assert.strictEqual(tamHnChuaDat.tam_3_lop.so_luong_can_dat_toi_thieu, "1.198");
 
 const tamHnDat = tinhGiaTam("HN", { dai: 50, rong: 40, so_luong: 1500 }, formatPrice).data;
